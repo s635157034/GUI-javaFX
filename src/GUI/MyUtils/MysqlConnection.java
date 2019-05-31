@@ -2,16 +2,34 @@ package GUI.MyUtils;
 
 import GUI.Model.EMRItem;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class MysqlConnection {
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost:3306/EMR?serverTimezone=GMT%2B8";
 
-    static final String USER = "test";
-    static final String PASS = "123456";
+    static String USER = "test";
+    static String PASS = "123456";
+
+    static Properties config;
+
+    static {
+        try {
+            config = new Properties();
+            config.load(new BufferedReader(new FileReader(GUIUtils.getAboslutePath() + "\\config\\config.properties")));
+            USER = config.getProperty("user");
+            PASS = config.getProperty("password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     static Connection conn = null;
     static Statement stmt = null;
