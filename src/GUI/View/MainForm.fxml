@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.Font?>
+<VBox fx:id="rootVBox" minHeight="525.0" minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.MainFormController">
+  <children>
+    <MenuBar prefHeight="25.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+              <MenuItem fx:id="M_openClassifierObject" mnemonicParsing="false" onAction="#openClassifierObject" text="打开模型" />
+              <MenuItem fx:id="M_saveClassifierObject" mnemonicParsing="false" onAction="#saveClassifierObject" text="保存模型" />
+                  <MenuItem mnemonicParsing="false" onAction="#connectDataBase" text="连接数据库" />
+              <MenuItem fx:id="M_exit" mnemonicParsing="false" text="退出" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Undo" />
+            <MenuItem mnemonicParsing="false" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Cut" />
+            <MenuItem mnemonicParsing="false" text="Copy" />
+            <MenuItem mnemonicParsing="false" text="Paste" />
+            <MenuItem mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Select All" />
+            <MenuItem mnemonicParsing="false" text="Unselect All" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <TabPane prefHeight="500.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <tabs>
+          <Tab fx:id="A_Tab" closable="false" text="数据选择">
+               <content>
+                  <VBox prefWidth="600.0">
+                     <children>
+                        <HBox prefHeight="23.0" prefWidth="600.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#A_openfileClick" text="选择文件">
+                                 <HBox.margin>
+                                     <Insets />
+                                 </HBox.margin>
+                              </Button>
+                              <Label prefHeight="23.0" prefWidth="67.0" text="文件路径：">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="A_filePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox prefWidth="600.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <VBox prefWidth="250.0">
+                                 <children>
+                                    <Label prefHeight="15.0" prefWidth="59.0" text="文件详情" />
+                                    <HBox>
+                                       <children>
+                                          <GridPane prefHeight="25.0" prefWidth="250.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label prefHeight="15.0" prefWidth="66.0" text="属性数量：" />
+                                                <Label text="实例个数：" GridPane.columnIndex="2" />
+                                                <Label fx:id="A_fileInfo_attributeNum" text="null" GridPane.columnIndex="1" />
+                                                <Label fx:id="A_fileInfo_instanceNum" text="null" GridPane.columnIndex="3" />
+                                             </children>
+                                          </GridPane>
+                                       </children>
+                                    </HBox>
+                                    <Label prefHeight="15.0" prefWidth="59.0" text="选择属性" />
+                                     <TableView fx:id="A_fileInfoTableView" focusTraversable="false" onMouseClicked="#showSelectAttributeInfo" prefHeight="300.0" prefWidth="250.0" VBox.vgrow="ALWAYS">
+                                      <columns>
+                                          <TableColumn fx:id="A_fileInfoTableView_col1" editable="false" maxWidth="45.0" minWidth="45.0" prefWidth="45.0" resizable="false" text="No." />
+                                          <TableColumn fx:id="A_fileInfoTableView_col2" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" resizable="false" sortable="false" />
+                                          <TableColumn fx:id="A_fileInfoTableView_col3" editable="false" prefWidth="128.800048828125" text="name" />
+                                          <TableColumn fx:id="A_fileInfoTableView_col4" maxWidth="50.0" minWidth="50.0" prefWidth="50.0" resizable="false" sortable="false" text="离散值" />
+                                      </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                    <HBox maxHeight="25.0" prefHeight="25.0" prefWidth="250.0" VBox.vgrow="ALWAYS">
+                                       <children>
+                                           <Button mnemonicParsing="false" onAction="#A_selectAllAttributes" text="全选" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="35.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                           <Button mnemonicParsing="false" onAction="#A_selectNoneAttributes" text="全不选" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="20.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                           <Button mnemonicParsing="false" onAction="#A_deselectAllAtributes" text="反选" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="20.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="20.0" top="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                                 <HBox.margin>
+                                     <Insets />
+                                 </HBox.margin>
+                              </VBox>
+                              <VBox prefHeight="175.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="属性详情" />
+                                    <HBox>
+                                       <children>
+                                          <GridPane prefHeight="45.0" prefWidth="280.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="24.0" prefWidth="45.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="26.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="22.0" prefWidth="45.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="28.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label text="名称：" />
+                                                <Label text="缺失：" GridPane.columnIndex="2" />
+                                                 <Label prefHeight="13.0" prefWidth="62.0" text="值的个数：" GridPane.rowIndex="1" />
+                                                 <Label text="不相同值：" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                <Label fx:id="A_attributeInfo_name" text="null" GridPane.columnIndex="1" />
+                                                <Label fx:id="A_attributeInfo_distinct" text="null" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label fx:id="A_attributeInfo_missing" text="null" GridPane.columnIndex="3" />
+                                                <Label fx:id="A_attributeInfo_unique" text="null" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                             </children>
+                                          </GridPane>
+                                       </children>
+                                    </HBox>
+                                       <BarChart fx:id="A_attributeInfo_chart" animated="false" barGap="0.0" legendVisible="false" prefHeight="220.0" prefWidth="305.0" VBox.vgrow="ALWAYS">
+                                           <xAxis>
+                                               <CategoryAxis fx:id="A_attributeInfo_chart_categoryAxis" endMargin="1.0" side="BOTTOM" startMargin="1.0" tickLabelGap="0.0" tickLength="12.0" />
+                                           </xAxis>
+                                           <yAxis>
+                                               <NumberAxis />
+                                           </yAxis>
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                       </BarChart>
+                                    <GridPane prefHeight="15.0" prefWidth="305.0">
+                                      <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <Label text="最小值:" />
+                                             <Label fx:id="A_chart_min" text="min" GridPane.columnIndex="1" />
+                                          <Label text="中位数:" GridPane.columnIndex="4" />
+                                             <Label fx:id="A_chart_max" text="max" GridPane.columnIndex="7" />
+                                          <Label text="最大值:" GridPane.columnIndex="6" />
+                                             <Label fx:id="A_chart_middle" prefHeight="11.0" prefWidth="33.0" text="mid" GridPane.columnIndex="5" />
+                                          <Label text="平均值:" GridPane.columnIndex="2" />
+                                          <Label fx:id="A_chart_average" text="avg" GridPane.columnIndex="3" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="25.0" />
+                                       </VBox.margin>
+                                    </GridPane>
+                                 </children>
+                                 <HBox.margin>
+                                     <Insets left="10.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                            <VBox.margin>
+                                <Insets />
+                            </VBox.margin>
+                        </HBox>
+                     </children>
+                      <padding>
+                          <Insets left="5.0" right="5.0" />
+                      </padding>
+                  </VBox>
+               </content>
+          </Tab>
+          <Tab fx:id="B_Tab" closable="false" disable="true" text="分类训练">
+               <content>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <HBox prefHeight="30.0" prefWidth="200.0">
+                           <children>
+                              <Button disable="true" mnemonicParsing="false" text="选择算法" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets left="25.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <TextField fx:id="B_algorithmName" editable="false" text="RandomForest" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="425.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="180.0">
+                                 <children>
+                                    <Label text="参数设置" />
+                                    <GridPane prefWidth="200.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <Label text="分类器数量：" />
+                                          <Label text="最大深度：" GridPane.rowIndex="1" />
+                                          <Label text="最小基尼系数：" GridPane.rowIndex="2" />
+                                          <Label text="训练数据比例：" GridPane.rowIndex="3" />
+                                           <Label text="属性个数：" GridPane.rowIndex="4" />
+                                           <TextField fx:id="B_classiferNum" text="50" GridPane.columnIndex="1" />
+                                           <TextField fx:id="B_maxDepth" promptText="-1为不限制" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                           <TextField fx:id="B_minGini" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                           <TextField fx:id="B_inputDataScale" promptText="-1为.632自助法" text="-2" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                           <TextField fx:id="B_attributeScale" promptText="-1为logN,-2为根号N" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <Label text="随机因子：" GridPane.rowIndex="5" />
+                                           <TextField fx:id="B_randomSeed" text="1" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                       </children>
+                                    </GridPane>
+                                    <Label text="类别序号">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <ChoiceBox fx:id="B_chooseClassId" prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </ChoiceBox>
+                                    <HBox prefWidth="200.0">
+                                       <children>
+                                           <Button fx:id="B_startTrain" mnemonicParsing="false" onAction="#B_startTrain" text="开始" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="40.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                           <Button fx:id="B_stopTrain" mnemonicParsing="false" onAction="#B_stopTrain" text="终止" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="20.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                     <ProgressBar fx:id="B_progressBar" prefWidth="200.0" progress="0.0" />
+                                    <HBox prefWidth="200.0">
+                                       <children>
+                                           <Label text="测试集：">
+                                             <HBox.margin>
+                                                <Insets top="5.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                           <Button fx:id="B_openTestSetFileButton" disable="true" mnemonicParsing="false" onAction="#B_openTestSetFile" text="打开文件">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                           <Button fx:id="B_startTest" disable="true" mnemonicParsing="false" onAction="#B_startTest" text="测试">
+                                             <HBox.margin>
+                                                 <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                       </children>
+                                       <VBox.margin>
+                                           <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                     <TextField fx:id="B_testSetPath" editable="false" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="400.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="输出" />
+                                     <TextArea fx:id="B_TextArea" editable="false" prefHeight="400.0" prefWidth="400.0" text="分类器数量：随机森林训练次数，产生指定数量的分类器。&#10;&#10;最大深度：定义每个分类器的最大深度，-1为不限定。&#10;&#10;最小基尼系数：训练过程中基尼系数小于最小值即停止该节点的分裂。&#10;&#10;训练数据比例：-1为.632自助法，可以自定义每次训练使用多少数据&#10;&#10;属性个数：每次抽样时选取的属性数量，-1为√，-2为log2N。&#10;&#10;随机因子：改变随机因子来控制整个过程的随机数，相同随机因子的结果相同。&#10;" wrapText="true" VBox.vgrow="ALWAYS" />
+                                     <StackPane>
+                                         <children>
+                                          <HBox alignment="CENTER" prefWidth="200.0">
+                                             <children>
+                                                   <Button fx:id="B_clearTextArea" alignment="CENTER" mnemonicParsing="false" onAction="#clearTextArea" text="清空屏幕" textAlignment="CENTER" />
+                                                <Button mnemonicParsing="false" onAction="#showHelp" text="显示帮助">
+                                                   <HBox.margin>
+                                                      <Insets left="50.0" />
+                                                   </HBox.margin>
+                                                </Button>
+                                             </children>
+                                          </HBox>
+                                         </children>
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                     </StackPane>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="20.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="5.0" right="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </content>
+          </Tab>
+            <Tab fx:id="D_Tab" closable="false" disable="true" text="可视化分析">
+               <content>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <VBox prefWidth="200.0">
+                           <children>
+                              <Label text="模型评估：">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <HBox prefWidth="200.0">
+                                 <children>
+                                    <Label text="阈值：" />
+                                    <Slider fx:id="D_thresoldSlider" blockIncrement="0.01" majorTickUnit="0.5" max="1.0" minorTickCount="50" onScroll="#sliderScroll" showTickLabels="true" showTickMarks="true" value="0.5" />
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#findMaxAccurancy" text="查找准确率最高的阈值" />
+                                    <TextField fx:id="D_thresoldText" onKeyPressed="#thresoldEnter" prefWidth="50.0" text="0.50">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
+                              <Label text="Label" />
+                              <GridPane prefHeight="160.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                                 <children>
+                                    <Label text="Accurancy：" />
+                                    <Label text="Precision：" GridPane.rowIndex="1" />
+                                    <Label text="Recall：" GridPane.rowIndex="2" />
+                                     <Label fx:id="D_Accurancy" prefHeight="15.0" text="null" GridPane.columnIndex="1" />
+                                     <Label fx:id="D_Precision" text="null" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label fx:id="D_Recall" text="null" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="F-measure：" GridPane.rowIndex="3" />
+                                     <Label fx:id="D_Fmeasure" text="null" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="F2：" GridPane.rowIndex="4" />
+                                    <Label text="F0.5：" GridPane.rowIndex="5" />
+                                     <Label fx:id="D_F2" text="null" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                     <Label fx:id="D_F0_5" text="null" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                 </children>
+                              </GridPane>
+                              <Separator prefWidth="200.0">
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" />
+                                 </VBox.margin>
+                              </Separator>
+                              <StackPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <Canvas fx:id="D_ROC_Canvas" height="200.0" width="200.0" />
+                                    <Label text="1" StackPane.alignment="BOTTOM_RIGHT" />
+                                    <Line endY="100.0" startY="-100.0" StackPane.alignment="CENTER_LEFT" />
+                                    <Line endX="100.0" startX="-100.0" StackPane.alignment="BOTTOM_CENTER" />
+                                    <Label text="0" StackPane.alignment="BOTTOM_LEFT">
+                                       <StackPane.margin>
+                                          <Insets left="5.0" />
+                                       </StackPane.margin>
+                                    </Label>
+                                    <Label text="1" StackPane.alignment="TOP_LEFT">
+                                       <StackPane.margin>
+                                          <Insets left="5.0" />
+                                       </StackPane.margin>
+                                    </Label>
+                                    <Label text="0.5" StackPane.alignment="CENTER_LEFT">
+                                       <StackPane.margin>
+                                          <Insets left="5.0" />
+                                       </StackPane.margin>
+                                    </Label>
+                                    <Label text="0.5" StackPane.alignment="BOTTOM_CENTER" />
+                                    <Line endX="100.0" opacity="0.1" smooth="false" startX="-100.0">
+                                       <fill>
+                                          <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                                             <stops>
+                                                <Stop color="BLACK" />
+                                                <Stop color="WHITE" offset="1.0" />
+                                             </stops>
+                                          </RadialGradient>
+                                       </fill>
+                                    </Line>
+                                    <Line endY="100.0" opacity="0.1" startY="-100.0" />
+                                    <Line endY="100.0" opacity="0.1" startY="-100.0" StackPane.alignment="CENTER_RIGHT" />
+                                    <Line endX="100.0" opacity="0.1" smooth="false" startX="-100.0" StackPane.alignment="TOP_CENTER">
+                                       <fill>
+                                          <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                                             <stops>
+                                                <Stop color="BLACK" />
+                                                <Stop color="WHITE" offset="1.0" />
+                                             </stops>
+                                          </RadialGradient>
+                                       </fill>
+                                    </Line>
+                                 </children>
+                              </StackPane>
+                              <GridPane>
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="AUC:" />
+                                     <Label fx:id="D_AUC" text="null" GridPane.columnIndex="1" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <VBox fx:id="D_VBox" prefWidth="400.0" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="5.0" />
+                           </HBox.margin>
+                           <children>
+                              <Label text="分类器信息：" />
+                              <HBox>
+                                 <children>
+                                    <Label text="显示某个决策树：">
+                                       <HBox.margin>
+                                          <Insets top="3.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                    <Spinner fx:id="D_classiferIdSpinner" editable="true" />
+                                    <Button mnemonicParsing="false" onAction="#D_clickAnalysis" text="模型分析">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <ScrollPane fx:id="P_scrollPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                 <content>
+                                    <ImageView fx:id="D_imageView" fitHeight="400.0" onScroll="#imageZoom" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../../image/classifer-0.jpg" />
+                                       </image>
+                                    </ImageView>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                     </children>
+                     <padding>
+                        <Insets right="5.0" />
+                     </padding>
+                  </HBox>
+               </content>
+            </Tab>
+            <Tab fx:id="C_Tab" closable="false" disable="true" text="预测">
+               <content>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label text="批量预测：">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <HBox prefHeight="23.0" prefWidth="600.0">
+                           <children>
+                               <Button mnemonicParsing="false" onAction="#C_openDataFile" text="选择文件">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Button>
+                               <Button fx:id="C_startPredict" disable="true" mnemonicParsing="false" onAction="#C_startPredict" text="开始预测">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Label prefHeight="23.0" prefWidth="67.0" text="文件路径：">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Label>
+                               <TextField fx:id="C_dataFilePath" disable="true" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <Label text="单独显示：">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                              <Spinner fx:id="C_chooseIdSpinner" editable="true">
+                                 <HBox.margin>
+                                    <Insets right="20.0" />
+                                 </HBox.margin></Spinner>
+                              <Label text="预测结果：">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="C_showIdResult" editable="false" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="5.0" top="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <TreeTableView fx:id="C_infoTable" prefHeight="200.0" prefWidth="200.0" showRoot="false" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TreeTableColumn fx:id="C_infoTable_idCol" editable="false" prefWidth="94.5999755859375" text="属性" />
+                            <TreeTableColumn fx:id="C_infoTable_nameCol" editable="false" prefWidth="174.20001220703125" sortable="false" text="含义" />
+                              <TreeTableColumn fx:id="C_infoTable_recommendCol" editable="false" minWidth="0.0" prefWidth="203.79998779296875" sortable="false" text="推荐值" />
+                              <TreeTableColumn fx:id="C_infoTable_actualCol" editable="false" prefWidth="133.4000244140625" sortable="false" text="实际值" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TreeTableView>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </padding>
+                  </VBox>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+  </children>
+</VBox>

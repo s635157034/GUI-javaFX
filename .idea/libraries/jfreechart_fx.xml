@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jfreechart-fx">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jfreechart-fx.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
