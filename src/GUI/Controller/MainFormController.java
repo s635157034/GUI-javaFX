@@ -130,7 +130,9 @@ public class MainFormController implements Initializable {
     @FXML private Tab B_Tab;
     @FXML private Tab C_Tab;
     @FXML private Tab D_Tab;
-    @FXML private Button B_creatGraphButton;
+    @FXML private ProgressIndicator A_Indicator;
+    @FXML private ProgressIndicator C_Indicator;
+    @FXML private ScrollPane C_scrollPane;
     //初始化需要的操作
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -182,6 +184,8 @@ public class MainFormController implements Initializable {
                 setD_ModelInfo();
             }
         });
+
+        new DragImageListener(D_imageView,C_scrollPane);
 
         //程序启动尝试自动连接数据库，多线程避免界面阻塞
         new Thread(new Task() {
@@ -250,6 +254,7 @@ public class MainFormController implements Initializable {
                 @Override
                 protected Object call() throws Exception {
                     try {
+                        A_Indicator.setVisible(true);
                         trainDataBean = GUIUtils.getDataFromFile(file.getPath());
                         attributeInfoLabels = new ArrayList<>();
                         for (int i = 0; i < trainDataBean.getAttruibuteNum(); i++) {
@@ -269,8 +274,8 @@ public class MainFormController implements Initializable {
                             B_chooseClassId.setItems(observableList);
                             B_chooseClassId.getSelectionModel().select(observableList.size() - 1);
                             //创建所有属性的属性信息
-
                             setButton(TRAINFILE);
+                            A_Indicator.setVisible(false);
                         });
                     } catch (Exception e) {
                         System.out.println(e);
@@ -457,6 +462,7 @@ public class MainFormController implements Initializable {
     //开始预测
     @FXML
     void C_startPredict() {
+        C_Indicator.setVisible(true);
         classifyDataBean.setInputClass(randomForest.verify(classifyDataBean.getInput()));
         new Thread(new Task() {
 
@@ -464,6 +470,7 @@ public class MainFormController implements Initializable {
             protected Object call() throws Exception {
                 try {
                     GUIUtils.writePredictToCSV(C_dataFilePath.getText(), classifyDataBean.getInputClass());
+                    C_Indicator.setVisible(false);
                 }catch (Exception e){
                     System.out.println(e);
                 }
@@ -572,6 +579,7 @@ public class MainFormController implements Initializable {
         }
     }
 
+
     //退出
     @FXML
     void M_exit(ActionEvent event){
@@ -631,9 +639,7 @@ public class MainFormController implements Initializable {
             if (randomForest != null) {
                 GUIUtils.writeClassiferAsText(file.getPath(), randomForest);
             } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setContentText("请训练后再进行保存");
-                alert.show();
+                new Alert(Alert.AlertType.WARNING,"请训练后再进行保存").showAndWait();
             }
         }
     }
@@ -773,10 +779,11 @@ public class MainFormController implements Initializable {
             }).start();
         }
     }
-
+    //标题栏拖动
     public void setDragListener(Stage stage){
         new DragListener(stage).enableDrag(MenuHBox);
     }
+
 
     //不同状态不同按钮是否可用
     private void setButton(int i){

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.chart.BarChart?>
@@ -35,6 +36,11 @@
                                        </HBox.margin>
                                     </Label>
                                     <TextField fx:id="A_filePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                    <ProgressIndicator fx:id="A_Indicator" visible="false">
+                                       <HBox.margin>
+                                          <Insets left="5.0" right="5.0" />
+                                       </HBox.margin>
+                                    </ProgressIndicator>
                                  </children>
                                  <VBox.margin>
                                     <Insets bottom="10.0" top="10.0" />
@@ -271,7 +277,7 @@
                                                 <Insets bottom="10.0" top="10.0" />
                                              </VBox.margin>
                                           </HBox>
-                                           <ProgressBar fx:id="B_progressBar" prefWidth="200.0" progress="0.0" />
+                                           <JFXProgressBar fx:id="B_progressBar" prefWidth="200.0" progress="0.0" />
                                           <HBox prefWidth="200.0">
                                              <children>
                                                  <Label text="测试集：">
@@ -346,7 +352,7 @@
                                     <HBox prefWidth="200.0">
                                        <children>
                                           <Label text="阈值：" />
-                                          <Slider fx:id="D_thresoldSlider" blockIncrement="0.01" majorTickUnit="0.5" max="1.0" minorTickCount="50" onScroll="#D_sliderScroll" showTickLabels="true" showTickMarks="true" value="0.5" />
+                                          <Slider fx:id="D_thresoldSlider" blockIncrement="0.01" majorTickUnit="0.5" max="1.0" minorTickCount="5" onScroll="#D_sliderScroll" showTickLabels="true" showTickMarks="true" value="0.5" />
                                        </children>
                                     </HBox>
                                     <HBox>
@@ -487,7 +493,7 @@
                                           <Insets bottom="10.0" top="10.0" />
                                        </VBox.margin>
                                     </HBox>
-                                    <ScrollPane fx:id="P_scrollPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                    <ScrollPane fx:id="C_scrollPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                                        <content>
                                           <ImageView fx:id="D_imageView" fitHeight="400.0" onScroll="#D_imageZoom" pickOnBounds="true" preserveRatio="true">
                                              <image>
@@ -534,7 +540,8 @@
                                           <Insets left="10.0" />
                                        </HBox.margin>
                                     </Label>
-                                     <TextField fx:id="C_dataFilePath" disable="true" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                     <TextField fx:id="C_dataFilePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                    <ProgressIndicator fx:id="C_Indicator" visible="false" />
                                  </children>
                                  <VBox.margin>
                                     <Insets top="5.0" />
@@ -588,19 +595,19 @@
             </TabPane>
             <HBox maxHeight="28.0" minHeight="28.0" prefHeight="28.0" prefWidth="200.0" StackPane.alignment="TOP_CENTER">
                <children>
-                  <HBox maxHeight="28.0" maxWidth="304.0" minHeight="28.0" minWidth="304.0" prefHeight="28.0" prefWidth="304.0">
+                  <HBox maxHeight="29.0" maxWidth="304.0" minHeight="29.0" minWidth="304.0" prefHeight="29.0" prefWidth="304.0">
                      <children>
-                        <Button id="Mytab_select" fx:id="A_button" mnemonicParsing="false" onAction="#A_clickButton" prefHeight="28.0" prefWidth="76.0" styleClass="Mytab" text="数据选择" />
-                        <Button fx:id="B_button" mnemonicParsing="false" onAction="#B_clickButton" prefHeight="28.0" prefWidth="76.0" styleClass="Mytab" text="分类训练" />
-                        <Button fx:id="D_button" mnemonicParsing="false" onAction="#D_clickButton" prefHeight="28.0" prefWidth="76.0" styleClass="Mytab" text="可视化分析" />
-                        <Button fx:id="C_button" mnemonicParsing="false" onAction="#C_clickButton" prefHeight="28.0" prefWidth="76.0" styleClass="Mytab" text="预测" />
+                        <JFXButton id="Mytab_select" fx:id="A_button" maxHeight="29.0" maxWidth="76.0" minHeight="28.0" minWidth="76.0" onAction="#A_clickButton" prefHeight="29.0" prefWidth="76.0" styleClass="Mytab" text="数据选择" />
+                        <JFXButton fx:id="B_button" maxHeight="29.0" maxWidth="76.0" minHeight="28.0" minWidth="76.0" onAction="#B_clickButton" prefHeight="29.0" prefWidth="76.0" styleClass="Mytab" text="分类训练" />
+                        <JFXButton fx:id="D_button" maxHeight="29.0" maxWidth="76.0" minHeight="28.0" minWidth="76.0" onAction="#D_clickButton" prefHeight="29.0" prefWidth="76.0" styleClass="Mytab" text="可视化分析" />
+                        <JFXButton fx:id="C_button" maxHeight="29.0" maxWidth="76.0" minHeight="28.0" minWidth="76.0" onAction="#C_clickButton" prefHeight="29.0" prefWidth="76.0" styleClass="Mytab" text="分类训练" />
                      </children>
                   </HBox>
                   <HBox fx:id="MenuHBox" maxHeight="28.0" minHeight="28.0" prefHeight="28.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                   <HBox alignment="TOP_RIGHT" maxHeight="28.0" maxWidth="248.0" minHeight="28.0" minWidth="248.0" prefHeight="28.0" prefWidth="248.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#M_openClassifierObject" prefHeight="28.0" styleClass="menuBtn" text="打开模型" />
-                        <Button mnemonicParsing="false" onAction="#M_saveClassifierObject" prefHeight="28.0" styleClass="menuBtn" text="保存模型" />
+                        <JFXButton mnemonicParsing="false" onAction="#M_openClassifierObject" prefHeight="28.0" styleClass="menuBtn" text="打开模型" />
+                        <JFXButton mnemonicParsing="false" onAction="#M_saveClassifierObject" prefHeight="28.0" styleClass="menuBtn" text="保存模型" />
                         <Button id="menu_min" maxHeight="28.0" maxWidth="40.0" minHeight="28.0" minWidth="40.0" mnemonicParsing="false" onAction="#M_min" prefHeight="28.0" prefWidth="40.0" styleClass="menuBtn" text="一" />
                         <Button id="menu_max" maxHeight="28.0" maxWidth="40.0" minHeight="28.0" minWidth="40.0" mnemonicParsing="false" onAction="#M_max" prefHeight="28.0" prefWidth="40.0" styleClass="menuBtn" text="□">
                            <font>

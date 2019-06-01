@@ -16,18 +16,18 @@
     -fx-opacity: 0.8;
 }
 
-.menuBtn{
+.menuBtn {
     -fx-background-color: black;
     -fx-text-fill: white;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
 }
 
-.menuBtn:hover{
+.menuBtn:hover {
     -fx-background-color: #AAAAAA;
 }
 
-#menu_exit:hover{
+#menu_exit:hover {
     -fx-background-color: red;
 }
 
@@ -90,8 +90,8 @@
     -fx-border-width: 0;
 }
 
-#Mytab_select{
-    -fx-background-color: rgb(244,244,244);
+#Mytab_select {
+    -fx-background-color: rgb(244, 244, 244);
     -fx-text-fill: black;
 }
 
@@ -99,7 +99,30 @@
 .tab-pane > .tab-header-area > .tab-header-background {
     -fx-background-color: black;
 }
-.table-pane{
+
+.table-pane {
     -fx-background-color: black;
 }
 
+/* The increment and decrement button CSS class of scrollbar */
+.increment-button, .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 2em;
+}
+
+/* The main scrollbar **track** CSS class  */
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: derive(gray, 80%);
+    -fx-background-radius: 2em;
+    -fx-border-radius: 2em;
+}
+
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: derive(black, 90%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
