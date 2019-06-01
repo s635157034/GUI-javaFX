@@ -3,6 +3,7 @@ package Classifiers.Cart;
 
 import Classifiers.MyUtils.ClassifiersUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Created by sun on 19-4-10.
  */
-public class CartTree {
+public class CartTree implements Serializable {
     public static final int continuous = 0;//连续值类别为0
     private double minGini = 0;
     private int maxDepth = -1;
@@ -63,6 +64,9 @@ public class CartTree {
         CartTreeNode root = new CartTreeNodeRoot(start, end, Gini.calculateTotalGini(data[dataClassId], start, end));
         cartTreeNodes.add(root);
         int[] child = buildCartTree(start, end, exception, 1);
+        if(child[0]==-1 ||child[1]==-1){
+            root.setLeaf(true);
+        }
         root.setLeftChild(child[0]);
         root.setRightChild(child[1]);
         buildClassifer();

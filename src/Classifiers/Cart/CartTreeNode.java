@@ -3,13 +3,14 @@ package Classifiers.Cart;
 
 import Classifiers.MyUtils.ClassifiersUtils;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
 /**
  * Created by sun on 19-4-10.
  */
-public abstract class CartTreeNode implements Comparable<CartTreeNode> {
+public abstract class CartTreeNode implements Comparable<CartTreeNode>, Serializable {
     private int attriId;//节点的序号
     private boolean isLeaf = false;//节点是否为叶节点
     private int nodeClass = -1;//节点的分类

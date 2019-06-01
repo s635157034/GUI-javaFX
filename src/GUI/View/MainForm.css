@@ -83,11 +83,15 @@
 }
 
 .Mytab {
-    -fx-background-color: grey;
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
 }
 
-.Mytab:selected{
-    -fx-background-color: white;
+#Mytab_select{
+    -fx-background-color: rgb(244,244,244);
     -fx-text-fill: black;
 }
 

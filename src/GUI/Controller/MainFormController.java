@@ -29,6 +29,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -65,6 +66,8 @@ public class MainFormController implements Initializable {
     private ModelAnalysis modelAnalysis;
     private Map<Integer,TreeItem<PredictInfoTableItem>> typeItems = new HashMap<>();
     @FXML private VBox rootVBox;
+    @FXML private TabPane TabPane;
+    @FXML private HBox MenuHBox;
     @FXML private TextField A_filePath;
     @FXML private Label A_fileInfo_attributeNum;
     @FXML private Label A_fileInfo_instanceNum;
@@ -119,11 +122,18 @@ public class MainFormController implements Initializable {
     @FXML private Button B_openTestSetFileButton;
     @FXML private Button D_AnalysisButton;
     @FXML private Button C_openDataFileButton;
-
+    @FXML private Button A_button;
+    @FXML private Button B_button;
+    @FXML private Button C_button;
+    @FXML private Button D_button;
+    @FXML private Tab A_Tab;
+    @FXML private Tab B_Tab;
+    @FXML private Tab C_Tab;
+    @FXML private Tab D_Tab;
+    @FXML private Button B_creatGraphButton;
     //初始化需要的操作
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         StageManager.CONTROLLER.put("MainForm", this);
         A_fileInfoTableView_col1.setCellValueFactory(new PropertyValueFactory("num"));
         A_fileInfoTableView_col2.setCellValueFactory(new PropertyValueFactory("checkBox"));
@@ -222,6 +232,8 @@ public class MainFormController implements Initializable {
         };
         PrintStream printStream = new PrintStream(textAreaStream);
         System.setOut(printStream);
+
+
     }
 
     //打开训练数据
@@ -346,7 +358,6 @@ public class MainFormController implements Initializable {
             randomForest = new RandomForest(treeNum, maxDepth, minGini, trainDataBean.getInput(), inputClass, exception, classId, inputDataScale, attributeScale, randomSeed);
             //javaFX的多线程方式
             randomForestBuild();
-            D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, treeNum - 1));
         } catch (NumberFormatException e) {
             System.out.println("所有参数仅能设置为数字");
         } catch (Exception e){
@@ -359,11 +370,11 @@ public class MainFormController implements Initializable {
         ThreadGroup group = Thread.currentThread().getThreadGroup();
         Thread[] threads = new Thread[group.activeCount()];
         group.enumerate(threads);
+        PaintingByGraphViz.flag = true;
         for(Thread tmp:threads){
             if(tmp.getName().equals("RandomForest")){
                 tmp.interrupt();
                 setButton(ISINTERPUTE);
-
             }
         }
     }
@@ -642,6 +653,40 @@ public class MainFormController implements Initializable {
         }
     }
 
+    @FXML
+    void A_clickButton(ActionEvent event){
+        TabPane.getSelectionModel().select(A_Tab);
+        setTabStyle();
+        A_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
+
+    }
+    @FXML
+    void B_clickButton(ActionEvent event){
+        TabPane.getSelectionModel().select(B_Tab);
+        setTabStyle();
+        B_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
+    }
+    @FXML
+    void C_clickButton(ActionEvent event){
+        TabPane.getSelectionModel().select(C_Tab);
+        setTabStyle();
+        C_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
+    }
+    @FXML
+    void D_clickButton(ActionEvent event){
+        TabPane.getSelectionModel().select(D_Tab);
+        setTabStyle();
+        D_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
+    }
+
+    void setTabStyle(){
+        A_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
+        B_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
+        C_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
+        D_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
+    }
+
+
     //利用Task实现javaFX多线程
     public void randomForestBuild() {
         randomForestThread = new Thread(new Task() {
@@ -651,14 +696,20 @@ public class MainFormController implements Initializable {
                     System.out.println("开始训练");
                     long startTime = System.currentTimeMillis();
                     randomForest.build(B_progressBar);
-                    long endTime = System.currentTimeMillis();
-                    System.out.println("算法运行时间：" + (endTime - startTime) + "ms");
-                    PaintingByGraphViz.getTreePicture(randomForest.printRandomForest());
+                    System.out.println("随机森林算法运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
+                    System.out.println("开始生产决策树图像");
+                    B_progressBar.setProgress(0);
+                    PaintingByGraphViz.getTreePicture(randomForest.printRandomForest(),B_progressBar,randomForest.getTreeNum());
+                    while (PaintingByGraphViz.atomicInteger.get()!=randomForest.getTreeNum()){
+                        if(Thread.currentThread().isInterrupted()){
+                            throw new InterruptedException();
+                        }
+                        Thread.sleep(500);
+                    }
+                    System.out.println("总运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
                     Platform.runLater(()->{
+                        D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1));
                         setButton(ISTRAIN);
-                        C_openDataFileButton.setDisable(false);
-                        D_AnalysisButton.setDisable(false);
-                        B_openTestSetFileButton.setDisable(false);
                     });
                 }catch (InterruptedException e){
                     System.out.println("终止成功");
@@ -721,6 +772,11 @@ public class MainFormController implements Initializable {
             }).start();
         }
     }
+
+    public void setDragListener(Stage stage){
+        new DragListener(stage).enableDrag(MenuHBox);
+    }
+
     //不同状态不同按钮是否可用
     private void setButton(int i){
         switch (i) {

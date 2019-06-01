@@ -4,8 +4,6 @@ package Classifiers.RandomForest;
 import Classifiers.Cart.CartTree;
 import Classifiers.Cart.CartTreeNode;
 import Classifiers.MyUtils.ClassifiersUtils;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
 
 import java.io.Serializable;
@@ -15,10 +13,9 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RandomForest extends Service<List<CartTree>> implements Serializable {
+public class RandomForest implements Serializable {
     public final static int SQRTN = -1;
     public final static int LOGN = -2;
-
     private int treeNum = 100;//树的个数
     private int treeDepth = 5;//单个树的最大深度
     private double minGini = 0;//小于该基尼系数时停止分类
@@ -27,7 +24,7 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
     private int[] exception;//不进行分类的属性
     private int inputClassId;//数据类别所在的属性号
     private double inputScale = -1;//测试数据占得比例
-    private int attributeScale = -1;//属性的比例
+    private int attributeScale = -2;//属性的比例
     private long randomSeed = 1;
     private List<CartTree> cartTrees = new ArrayList<>();
     private boolean train = false;
@@ -291,18 +288,6 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
 
     public void setCartTrees(List<CartTree> cartTrees) {
         this.cartTrees = cartTrees;
-    }
-
-    @Override
-    protected Task<List<CartTree>> createTask() {
-        return new Task<List<CartTree>>() {
-            @Override
-            protected List<CartTree> call() throws Exception {
-                buildForest();
-                System.out.println("随机森林生成结束");
-                return cartTrees;
-            }
-        };
     }
 
     public boolean isTrain() {
