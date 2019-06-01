@@ -30,6 +30,7 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
     private int attributeScale = -1;//属性的比例
     private long randomSeed = 1;
     private List<CartTree> cartTrees = new ArrayList<>();
+    private boolean train = false;
 
     public RandomForest(double[][] input, int[] inputClass, int[] exception, int inputClassId) {
         this.input = input;
@@ -71,21 +72,28 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
     public AtomicInteger count;
 
     public void build() {
+        train = false;
         Random random = new Random(randomSeed);
         Bootstrap.static_random = random;
         for (int i = 0; i < treeNum; i++) {
             buildForest();
         }
+        train = true;
     }
 
-    public void build(ProgressBar B_progressBar) {
+    public void build(ProgressBar B_progressBar) throws InterruptedException {
+        train = false;
         Random random = new Random(randomSeed);
         Bootstrap.static_random = random;
-        for (int i = 0; i < treeNum && (!Thread.currentThread().isInterrupted()); i++) {
+        for (int i = 0; i < treeNum ; i++) {
+            if(Thread.currentThread().isInterrupted()){
+                throw new InterruptedException();
+            }
             buildForest();
             B_progressBar.setProgress(i / (double) treeNum);
         }
         B_progressBar.setProgress(1);
+        train = true;
     }
 
     public int getAttributeNum() {
@@ -170,13 +178,6 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
         double[] attriWeight = new double[inputClass.length];
         for (CartTree cartTree:cartTrees) {
             for (CartTreeNode cartTreeNode : cartTree.getCartTreeNodes()) {
-                /*int attriId = cartTreeNode.getAttriId();
-                if(attriId==-1)
-                    continue;
-                int depth = cartTreeNode.getDepth();
-                int num = cartTreeNode.getEnd() - cartTreeNode.getStart();
-                double gini = cartTreeNode.getGini();
-                attriWeight[attriId] += (1.0/Math.pow(depth,2)) * num * (1 - gini);*/
                 if(!cartTreeNode.isLeaf()){
                     CartTreeNode left,right;
                     left = cartTree.getCartTreeNodes().get(cartTreeNode.getLeftChild());
@@ -304,7 +305,13 @@ public class RandomForest extends Service<List<CartTree>> implements Serializabl
         };
     }
 
+    public boolean isTrain() {
+        return train;
+    }
 
+    public void setTrain(boolean train) {
+        this.train = train;
+    }
 
     private void buildForest(){
         DataSet data;

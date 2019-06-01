@@ -45,6 +45,14 @@ import java.util.ResourceBundle;
 
 
 public class MainFormController implements Initializable {
+    public static final int TRAINFILE = 1;
+    public static final int TESTFILE = 2;
+    public static final int PREDICTFILE = 3;
+    public static final int ISTRAIN = 4;
+    public static final int ISTEST = 5;
+    public static final int ISPREDICT = 6;
+    public static final int ISINTERPUTE = -1;
+
     private Stage stage ;
     private DataBean trainDataBean;
     private DataBean testDataBean;
@@ -57,9 +65,6 @@ public class MainFormController implements Initializable {
     private ModelAnalysis modelAnalysis;
     private Map<Integer,TreeItem<PredictInfoTableItem>> typeItems = new HashMap<>();
     @FXML private VBox rootVBox;
-    @FXML private Tab B_Tab;
-    @FXML private Tab C_Tab;
-    @FXML private Tab D_Tab;
     @FXML private TextField A_filePath;
     @FXML private Label A_fileInfo_attributeNum;
     @FXML private Label A_fileInfo_instanceNum;
@@ -85,9 +90,9 @@ public class MainFormController implements Initializable {
     @FXML private TextField B_attributeScale;
     @FXML private TextField B_randomSeed;
     @FXML private ChoiceBox<AttributeTableViewItem> B_chooseClassId;
-    @FXML private Button B_startTrain;
-    @FXML private Button B_startTest;
-    @FXML private Button C_startPredict;
+    @FXML private Button B_startTrainButton;
+    @FXML private Button B_startTestButton;
+    @FXML private Button C_startPredictButton;
     @FXML private ProgressBar B_progressBar;
     @FXML private TextArea B_TextArea;
     @FXML private TextField B_testSetPath;
@@ -112,39 +117,116 @@ public class MainFormController implements Initializable {
     @FXML private Spinner<Integer> C_chooseIdSpinner;
     @FXML private Spinner<Integer> D_classiferIdSpinner;
     @FXML private Button B_openTestSetFileButton;
-    @FXML
-    void connectDataBase(ActionEvent event) {
-        if(types==null || itemMap==null){
-            new Thread(new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    try {
-                        MysqlConnection.connect();
-                        types=MysqlConnection.getType();
-                        itemMap = MysqlConnection.getItemMap();
-                        MysqlConnection.close();
-                    }catch (Exception e){
-                        Platform.runLater(()->{
-                            new Alert(Alert.AlertType.ERROR, "连接数据库失败，请确认数据库配置正常").show();
-                        });
-                    }
-                    return null;
+    @FXML private Button D_AnalysisButton;
+    @FXML private Button C_openDataFileButton;
+
+    //初始化需要的操作
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        StageManager.CONTROLLER.put("MainForm", this);
+        A_fileInfoTableView_col1.setCellValueFactory(new PropertyValueFactory("num"));
+        A_fileInfoTableView_col2.setCellValueFactory(new PropertyValueFactory("checkBox"));
+        A_fileInfoTableView_col3.setCellValueFactory(new PropertyValueFactory("name"));
+        A_fileInfoTableView_col4.setCellValueFactory(new PropertyValueFactory("isDiscrete"));
+
+        C_infoTable_idCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getId()));
+        C_infoTable_nameCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+        C_infoTable_recommendCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getRecommend()));
+        C_infoTable_actualCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getActual()));
+
+        //spinner监听输入的值是否符合要求
+        D_classiferIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->showClassifer());
+        D_classiferIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
+            try {
+                int value = Integer.valueOf(newValue.getText());
+                if (value >= randomForest.getTreeNum() || value < 0) {
+                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (classifyDataBean.getInput().length-1) + "之间的数字").showAndWait();
+                    D_classiferIdSpinner.getEditor().setText(oldValue.getText());
                 }
-            }).start();
-        }
-        TreeItem<PredictInfoTableItem> root = new TreeItem<>(new PredictInfoTableItem("化验类型","","",""));
-        C_infoTable.setRoot(root);
-        C_infoTable.setShowRoot(false);
-        for (Map.Entry<Integer, String> entry : types.entrySet()) {
-            TreeItem<PredictInfoTableItem> tmp=new TreeItem<>(new PredictInfoTableItem(entry.getValue(),"","",""));
-            typeItems.put(entry.getKey(),tmp);
-            root.getChildren().add(tmp);
-        }
+            } catch (NumberFormatException e) {
+                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
+                D_classiferIdSpinner.getEditor().setText(oldValue.getText());
+            }
+        });
+
+        C_chooseIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->C_getInfo());
+        C_chooseIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
+            try {
+                int value = Integer.valueOf(newValue.getText());
+                if (value >= randomForest.getTreeNum() || value < 0) {
+                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (randomForest.getTreeNum()-1) + "之间的数字").showAndWait();
+                    C_chooseIdSpinner.getEditor().setText(oldValue.getText());
+                }
+            } catch (NumberFormatException e) {
+                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
+                C_chooseIdSpinner.getEditor().setText(oldValue.getText());
+            }
+        });
+
+        //滑动条的监听，改变值时实时更新其他信息
+        D_thresoldSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            D_thresoldText.setText(GUIUtils.df2.format(newValue.doubleValue()));
+            if(modelAnalysis!=null){
+                modelAnalysis.changeAnalysis(GUIUtils.df2.format(newValue.doubleValue()));
+                setD_ModelInfo();
+            }
+        });
+
+        //程序启动尝试自动连接数据库，多线程避免界面阻塞
+        new Thread(new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    connectDataBase();
+                }catch (Exception e){
+                    Platform.runLater(()->{
+                        new Alert(Alert.AlertType.ERROR, "连接数据库失败，请手动连接").show();
+                    });
+                }
+                return null;
+            }
+        }).start();
+
+        //将系统输出重定位到textarea中，用stringbuffer缓冲
+        OutputStream textAreaStream = new OutputStream() {
+            StringBuffer stringBuffer = new StringBuffer();
+            public void write(int b) {
+                //利用stringbuffer缓存，检测到回车以后调用javafx线程更新输入框
+                stringBuffer.append((char) b);
+                if (stringBuffer.indexOf("\n")!=-1) {
+                    String str = stringBuffer.toString();
+                    stringBuffer.setLength(0);//清空字符串
+                    Platform.runLater(()->B_TextArea.appendText(str));
+                }
+            }
+
+            public void write(byte b[]) {
+                stringBuffer.append(b);
+                //stringBuffer.append(new String(b));
+                if (stringBuffer.indexOf("\n")!=-1) {
+                    String str = stringBuffer.toString();
+                    stringBuffer.setLength(0);//清空字符串
+                    Platform.runLater(()->B_TextArea.appendText(str));
+                }
+            }
+            public void write(byte b[], int off, int len) throws IOException {
+                stringBuffer.append(new String(b, off, len));
+                if (stringBuffer.indexOf("\n")!=-1) {
+                    String str = stringBuffer.toString();
+                    stringBuffer.setLength(0);//清空字符串
+                    Platform.runLater(()->B_TextArea.appendText(str));
+                }
+            }
+
+        };
+        PrintStream printStream = new PrintStream(textAreaStream);
+        System.setOut(printStream);
     }
 
     //打开训练数据
     @FXML
-    public void A_openfileClick(ActionEvent event) {
+    void A_openfileClick(ActionEvent event) {
         stage = (Stage) rootVBox.getScene().getWindow();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("打开文件");
@@ -175,7 +257,7 @@ public class MainFormController implements Initializable {
                             for (int i = 0; i < trainDataBean.getAttruibuteNum(); i++) {
                                 attributeInfoLabels.add(new AttributeInfoLabel(trainDataBean.getHeaders(i), trainDataBean.getAttruibute(i)));
                             }
-                            B_Tab.setDisable(false);
+                            setButton(TRAINFILE);
                         });
                     } catch (Exception e) {
                         System.out.println(e);
@@ -216,7 +298,7 @@ public class MainFormController implements Initializable {
     }
     //显示所选属性的信息
     @FXML
-    void showSelectAttributeInfo(MouseEvent event) {
+    void A_showSelectAttributeInfo(MouseEvent event) {
         AttributeTableViewItem selectItem = A_fileInfoTableView.getSelectionModel().getSelectedItem();
         if (selectItem != null) {
             AttributeInfoLabel attributeInfoLabel = attributeInfoLabels.get(selectItem.getId());
@@ -233,10 +315,11 @@ public class MainFormController implements Initializable {
             A_chart_max.setText(GUIUtils.df2.format(attributeInfoLabel.getMax()));
         }
     }
+
     //开始训练(多线程实现，避免ui卡死）
     @FXML
     void B_startTrain(ActionEvent event) {
-        B_startTrain.setDisable(true);
+        B_startTrainButton.setDisable(true);
         try {
             int treeNum = Integer.valueOf(B_classiferNum.getText());
             int maxDepth = Integer.valueOf(B_maxDepth.getText());
@@ -273,70 +356,18 @@ public class MainFormController implements Initializable {
     //停止训练线程
     @FXML
     void B_stopTrain() {
-        randomForestThread.interrupt();
-    }
+        ThreadGroup group = Thread.currentThread().getThreadGroup();
+        Thread[] threads = new Thread[group.activeCount()];
+        group.enumerate(threads);
+        for(Thread tmp:threads){
+            if(tmp.getName().equals("RandomForest")){
+                tmp.interrupt();
+                setButton(ISINTERPUTE);
 
-    @FXML
-    void openClassifierObject(ActionEvent event) {
-        stage = (Stage) rootVBox.getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("打开模型");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型", "*.rfModel"));
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            randomForest = GUIUtils.readClassiferObject(file.getPath());
-            B_classiferNum.setText(String.valueOf(randomForest.getTreeNum()));
-            B_maxDepth.setText(String.valueOf(randomForest.getTreeDepth()));
-            B_minGini.setText(String.valueOf(randomForest.getMinGini()));
-            B_inputDataScale.setText(String.valueOf(randomForest.getInputScale()));
-            B_attributeScale.setText(String.valueOf(randomForest.getAttributeScale()));
-            B_randomSeed.setText(String.valueOf(randomForest.getRandomSeed()));
-            //如果模型对应则可以使用可视化分析和预测
-            if (randomForest.getCartTrees().size() == randomForest.getTreeNum()) {
-                B_openTestSetFileButton.setDisable(false);
-                B_Tab.setDisable(false);
-                C_Tab.setDisable(false);
-                D_Tab.setDisable(false);
-            }else{
-                new Alert(Alert.AlertType.WARNING, "模型无效，需要重新训练").showAndWait();
             }
         }
     }
-
-    @FXML
-    void saveClassifierAsText(ActionEvent event) {
-        stage = (Stage) rootVBox.getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("保存模型");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型文本", "*.txt"));
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            if (randomForest != null) {
-                GUIUtils.writeClassiferAsText(file.getPath(), randomForest);
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setContentText("请训练后再进行保存");
-                alert.show();
-            }
-        }
-    }
-
-    @FXML
-    void saveClassifierObject(ActionEvent event) {
-        stage = (Stage) rootVBox.getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("保存模型");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型", "*.rfModel"));
-        File file = fileChooser.showSaveDialog(stage);
-        if (file != null) {
-            if (randomForest != null) {
-                GUIUtils.writeClassiferObject(file.getPath(), randomForest);
-            } else {
-                new Alert(Alert.AlertType.WARNING,"请训练后再进行保存").showAndWait();
-            }
-        }
-    }
-
+    //打开测试文件
     @FXML
     void B_openTestSetFile(ActionEvent event) {
         stage = (Stage) rootVBox.getScene().getWindow();
@@ -350,34 +381,13 @@ public class MainFormController implements Initializable {
             B_testSetPath.setText(file.getPath());
             try {
                 testDataBean = GUIUtils.getDataFromFile(file.getPath());
-                B_startTest.setDisable(false);
+                setButton(TESTFILE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
-    @FXML
-    void C_openDataFile() {
-        stage = (Stage) rootVBox.getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("打开需要预测的文件");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv", "*.csv"));
-        fileChooser.setInitialDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
-        File file = fileChooser.showOpenDialog(stage);
-        connectDataBase(null);
-        if (file != null) {
-            //读取文件
-            C_dataFilePath.setText(file.getPath());
-            try {
-                classifyDataBean = GUIUtils.getDataFromFile(file.getPath());
-                C_startPredict.setDisable(false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
+    //开始测试
     @FXML
     void B_startTest() {
         double[] results=randomForest.verifyRate(testDataBean.getInput());
@@ -386,34 +396,53 @@ public class MainFormController implements Initializable {
         GraphicsContext context = D_ROC_Canvas.getGraphicsContext2D();
         context.clearRect(0,0,200,200);
         double[][] tmp=modelAnalysis.getROCLine();
-
         int[] Matrix = modelAnalysis.getMatrix();
-
+        //打印混淆矩阵
         System.out.println("\t\t房颤\t\t正常");
         System.out.println("房颤\t\t" + Matrix[0] + "\t\t" + Matrix[1]);
         System.out.println("正常\t\t" + Matrix[2] + "\t\t" + Matrix[3]);
-
         //绘制ROC曲线
         context.strokePolyline(tmp[0], tmp[1], tmp[0].length);
         context.strokePolyline(new double[]{0,tmp[0][0]}, new double[]{200,tmp[1][0]}, 2);
         context.restore();
-
         //设置默认阈值0.5
         D_thresoldSlider.setValue(modelAnalysis.getThresold());
-        C_Tab.setDisable(false);
-        D_Tab.setDisable(false);
+        setButton(ISTEST);
+    }
+    //清空textarea
+    @FXML
+    void B_clearTextArea() {
+        B_TextArea.clear();
+    }
+    //显示帮助
+    @FXML
+    void B_showHelp(){
+        B_TextArea.clear();
+        B_TextArea.setText(GUIUtils.getPromptText());
     }
 
-    private void setD_ModelInfo(){
-        D_Accurancy.setText(GUIUtils.df6.format(modelAnalysis.getAccurancy()));
-        D_Recall.setText(GUIUtils.df6.format(modelAnalysis.getRecall()));
-        D_Precision.setText(GUIUtils.df6.format(modelAnalysis.getPrecision()));
-        D_Fmeasure.setText(GUIUtils.df6.format(modelAnalysis.getF_measure()));
-        D_F0_5.setText(GUIUtils.df6.format(modelAnalysis.getF0_5()));
-        D_F2.setText(GUIUtils.df6.format(modelAnalysis.getF2()));
-        D_AUC.setText(GUIUtils.df6.format(modelAnalysis.getAUC()));
+    //打开预测文件
+    @FXML
+    void C_openDataFile() {
+        stage = (Stage) rootVBox.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("打开需要预测的文件");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv", "*.csv"));
+        fileChooser.setInitialDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
+        File file = fileChooser.showOpenDialog(stage);
+        connectDataBase();
+        if (file != null) {
+            //读取文件
+            C_dataFilePath.setText(file.getPath());
+            try {
+                classifyDataBean = GUIUtils.getDataFromFile(file.getPath());
+                setButton(PREDICTFILE);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
-
+    //开始预测
     @FXML
     void C_startPredict() {
         classifyDataBean.setInputClass(randomForest.verify(classifyDataBean.getInput()));
@@ -429,108 +458,9 @@ public class MainFormController implements Initializable {
                 return null;
             }
         }).start();
-
         C_chooseIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,classifyDataBean.getInput().length-1));
+        setButton(ISPREDICT);
     }
-
-    @FXML
-    void showClassifer(){
-        int id = D_classiferIdSpinner.getValue();
-        try {
-            FileInputStream fs = new FileInputStream("image/classifer-" + id + ".jpg");
-            Image image = new Image(fs);
-            D_imageView.setImage(image);
-            fs.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void D_clickAnalysis(ActionEvent event) {
-        //分析模型
-        ChartViewer tmp =new ChartViewer(JFCUtils.creatChart(trainDataBean, randomForest));
-        Stage stage = new Stage();
-        stage.setTitle("模型评估");
-        stage.setScene(new Scene(tmp,800,600));
-        stage.show();
-    }
-
-
-    //利用Task实现javaFX多线程
-    public void randomForestBuild() {
-        randomForestThread = new Thread(new Task() {
-            @Override
-            protected Object call() throws Exception {
-                System.out.println("开始训练");
-                long startTime = System.currentTimeMillis();
-                randomForest.build(B_progressBar);
-                long endTime = System.currentTimeMillis();
-                System.out.println("算法运行时间：" + (endTime - startTime) + "ms");
-                PaintingByGraphViz.getTreePicture(randomForest.printRandomForest());
-                Platform.runLater(()->{
-                    C_Tab.setDisable(false);
-                    D_Tab.setDisable(false);
-                    B_startTrain.setDisable(false);
-                    B_openTestSetFileButton.setDisable(false);
-                });
-                return null;
-            }
-        }, "RandomForest");
-        randomForestThread.start();
-    }
-
-    @FXML
-    void thresoldEnter(KeyEvent event) {
-        if (event.getCode()== KeyCode.ENTER) {
-            String str=D_thresoldText.getText();
-            try {
-                double tmp = Double.valueOf(str);
-                if(tmp>1 ||tmp <0){
-                    D_thresoldSlider.setValue(0.5);
-                    new Alert(Alert.AlertType.ERROR, "仅能输入0-1的小数").showAndWait();
-                }else {
-                    str = GUIUtils.df2.format(tmp);
-                    D_thresoldSlider.setValue(Double.valueOf(str));
-                }
-            }catch (NumberFormatException e){
-                D_thresoldSlider.setValue(0.5);
-                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
-            }
-
-        }
-    }
-
-    @FXML
-    void sliderScroll(ScrollEvent event) {
-        double deltaY = event.getDeltaY();
-        if (deltaY > 0) {// 向上滚动,放大图片
-            D_thresoldSlider.increment();
-        } else {// 向下滚动,缩小图片
-            D_thresoldSlider.decrement();
-        }
-    }
-
-    @FXML
-    void findMaxAccurancy(ActionEvent event) {
-        if (modelAnalysis != null) {
-            modelAnalysis.changeAnalysis(modelAnalysis.findBestThresold(0.01));
-            D_thresoldSlider.setValue(modelAnalysis.getThresold());
-        }
-    }
-
-    @FXML
-    void imageZoom(ScrollEvent event) {
-        double deltaY = event.getDeltaY();
-        if (deltaY > 0) {// 向上滚动,放大图片
-            double height = D_imageView.getFitHeight()*1.05;
-            D_imageView.setFitHeight(height);
-        } else {// 向下滚动,缩小图片
-            double height = D_imageView.getFitHeight() / 1.05;
-            D_imageView.setFitHeight(height);
-        }
-    }
-
     //单独显示数据
     @FXML
     void C_getInfo(){
@@ -568,115 +498,273 @@ public class MainFormController implements Initializable {
         }
     }
 
+    //参数分析
     @FXML
-    void clearTextArea() {
-        B_TextArea.clear();
+    void D_startAnalysis(ActionEvent event) {
+        //分析模型
+        ChartViewer tmp =new ChartViewer(JFCUtils.creatChart(trainDataBean, randomForest));
+        Stage stage = new Stage();
+        stage.setTitle("模型评估");
+        stage.setScene(new Scene(tmp,800,600));
+        stage.show();
     }
+    //文本框输入阈值
     @FXML
-    void showHelp(){
-        B_TextArea.clear();
-        B_TextArea.setText(GUIUtils.getPromptText());
+    void D_thresoldEnter(KeyEvent event) {
+        if (event.getCode()== KeyCode.ENTER) {
+            String str=D_thresoldText.getText();
+            try {
+                double tmp = Double.valueOf(str);
+                if(tmp>1 ||tmp <0){
+                    D_thresoldSlider.setValue(0.5);
+                    new Alert(Alert.AlertType.ERROR, "仅能输入0-1的小数").showAndWait();
+                }else {
+                    str = GUIUtils.df2.format(tmp);
+                    D_thresoldSlider.setValue(Double.valueOf(str));
+                }
+            }catch (NumberFormatException e){
+                D_thresoldSlider.setValue(0.5);
+                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
+            }
+
+        }
+    }
+    //slider使用鼠标滚轮移动
+    @FXML
+    void D_sliderScroll(ScrollEvent event) {
+        double deltaY = event.getDeltaY();
+        if (deltaY > 0) {// 向上滚动,放大图片
+            D_thresoldSlider.increment();
+        } else {// 向下滚动,缩小图片
+            D_thresoldSlider.decrement();
+        }
+    }
+    //查找最优准确率
+    @FXML
+    void D_findMaxAccurancy(ActionEvent event) {
+        if (modelAnalysis != null) {
+            modelAnalysis.changeAnalysis(modelAnalysis.findBestThresold(0.01));
+            D_thresoldSlider.setValue(modelAnalysis.getThresold());
+        }
+    }
+    //图片滚轮缩放
+    @FXML
+    void D_imageZoom(ScrollEvent event) {
+        double deltaY = event.getDeltaY();
+        if (deltaY > 0) {// 向上滚动,放大图片
+            double height = D_imageView.getFitHeight()*1.05;
+            D_imageView.setFitHeight(height);
+        } else {// 向下滚动,缩小图片
+            double height = D_imageView.getFitHeight() / 1.05;
+            D_imageView.setFitHeight(height);
+        }
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        StageManager.CONTROLLER.put("MainForm", this);
-        A_fileInfoTableView_col1.setCellValueFactory(new PropertyValueFactory("num"));
-        A_fileInfoTableView_col2.setCellValueFactory(new PropertyValueFactory("checkBox"));
-        A_fileInfoTableView_col3.setCellValueFactory(new PropertyValueFactory("name"));
-        A_fileInfoTableView_col4.setCellValueFactory(new PropertyValueFactory("isDiscrete"));
+    //退出
+    @FXML
+    void M_exit(ActionEvent event){
+        System.exit(0);
+    }
+    //最大化
+    @FXML
+    void M_max(ActionEvent event){
+        stage = (Stage) rootVBox.getScene().getWindow();
+        if(stage.isMaximized()){
+            stage.setMaximized(false);
+        }else {
+            stage.setMaximized(true);
+        }
+    }
+    //最小化
+    @FXML
+    void M_min(ActionEvent event){
+        stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setIconified(true);
+    }
 
-        C_infoTable_idCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getId()));
-        C_infoTable_nameCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
-        C_infoTable_recommendCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getRecommend()));
-        C_infoTable_actualCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getActual()));
-
-        D_classiferIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->showClassifer());
-        D_classiferIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
-            try {
-                int value = Integer.valueOf(newValue.getText());
-                if (value >= randomForest.getTreeNum() || value < 0) {
-                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (classifyDataBean.getInput().length-1) + "之间的数字").showAndWait();
-                    D_classiferIdSpinner.getEditor().setText(oldValue.getText());
-                }
-            } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
-                D_classiferIdSpinner.getEditor().setText(oldValue.getText());
+    //打开训练模型
+    @FXML
+    void M_openClassifierObject(ActionEvent event) {
+        stage = (Stage) rootVBox.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("打开模型");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型", "*.rfModel"));
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            randomForest = GUIUtils.readClassiferObject(file.getPath());
+            B_classiferNum.setText(String.valueOf(randomForest.getTreeNum()));
+            B_maxDepth.setText(String.valueOf(randomForest.getTreeDepth()));
+            B_minGini.setText(String.valueOf(randomForest.getMinGini()));
+            B_inputDataScale.setText(String.valueOf(randomForest.getInputScale()));
+            B_attributeScale.setText(String.valueOf(randomForest.getAttributeScale()));
+            B_randomSeed.setText(String.valueOf(randomForest.getRandomSeed()));
+            //如果模型对应则可以使用可视化分析和预测
+            if (randomForest.getCartTrees().size() == randomForest.getTreeNum()) {
+                setButton(ISTRAIN);
+            }else{
+                new Alert(Alert.AlertType.WARNING, "模型无效，需要重新训练").showAndWait();
             }
-        });
-
-        C_chooseIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->C_getInfo());
-        C_chooseIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
-            try {
-                int value = Integer.valueOf(newValue.getText());
-                if (value >= randomForest.getTreeNum() || value < 0) {
-                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (randomForest.getTreeNum()-1) + "之间的数字").showAndWait();
-                    C_chooseIdSpinner.getEditor().setText(oldValue.getText());
-                }
-            } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
-                C_chooseIdSpinner.getEditor().setText(oldValue.getText());
+        }
+    }
+    //保存训练模型文本（未实现）
+    @FXML
+    void M_saveClassifierAsText(ActionEvent event) {
+        // TODO: 2019-05-31 暂未实现，目前没有思路
+        stage = (Stage) rootVBox.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("保存模型");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型文本", "*.txt"));
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if (randomForest != null) {
+                GUIUtils.writeClassiferAsText(file.getPath(), randomForest);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setContentText("请训练后再进行保存");
+                alert.show();
             }
-        });
-        D_thresoldSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            D_thresoldText.setText(GUIUtils.df2.format(newValue.doubleValue()));
-            if(modelAnalysis!=null){
-                modelAnalysis.changeAnalysis(GUIUtils.df2.format(newValue.doubleValue()));
-                setD_ModelInfo();
+        }
+    }
+    //保存训练模型
+    @FXML
+    void M_saveClassifierObject(ActionEvent event) {
+        if (randomForest != null && randomForest.isTrain()) {
+            stage = (Stage) rootVBox.getScene().getWindow();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("保存模型");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("随机森林模型", "*.rfModel"));
+            File file = fileChooser.showSaveDialog(stage);
+            if (file != null) {
+                GUIUtils.writeClassiferObject(file.getPath(), randomForest);
             }
-        });
+        } else {
+            new Alert(Alert.AlertType.WARNING,"请训练后再进行保存").showAndWait();
+        }
+    }
 
-        new Thread(new Task() {
+    //利用Task实现javaFX多线程
+    public void randomForestBuild() {
+        randomForestThread = new Thread(new Task() {
             @Override
-            protected Object call() throws Exception {
+            protected Object call(){
                 try {
-                    MysqlConnection.connect();
-                    types=MysqlConnection.getType();
-                    itemMap = MysqlConnection.getItemMap();
-                    MysqlConnection.close();
-                }catch (Exception e){
+                    System.out.println("开始训练");
+                    long startTime = System.currentTimeMillis();
+                    randomForest.build(B_progressBar);
+                    long endTime = System.currentTimeMillis();
+                    System.out.println("算法运行时间：" + (endTime - startTime) + "ms");
+                    PaintingByGraphViz.getTreePicture(randomForest.printRandomForest());
                     Platform.runLater(()->{
-                        new Alert(Alert.AlertType.ERROR, "连接数据库失败，请手动连接").show();
+                        setButton(ISTRAIN);
+                        C_openDataFileButton.setDisable(false);
+                        D_AnalysisButton.setDisable(false);
+                        B_openTestSetFileButton.setDisable(false);
                     });
+                }catch (InterruptedException e){
+                    System.out.println("终止成功");
                 }
                 return null;
             }
-        }).start();
-
-
-        OutputStream textAreaStream = new OutputStream() {
-            StringBuffer stringBuffer = new StringBuffer();
-            public void write(int b) {
-                //利用stringbuffer缓存，检测到回车以后调用javafx线程更新输入框
-                stringBuffer.append((char) b);
-                if (stringBuffer.indexOf("\n")!=-1) {
-                    String str = stringBuffer.toString();
-                    stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
+        }, "RandomForest");
+        randomForestThread.start();
+    }
+    //显示决策树图片
+    void showClassifer(){
+        int id = D_classiferIdSpinner.getValue();
+        try {
+            FileInputStream fs = new FileInputStream("image/classifer-" + id + ".jpg");
+            Image image = new Image(fs);
+            D_imageView.setImage(image);
+            fs.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //修改模型评估的各项数据
+    private void setD_ModelInfo(){
+        D_Accurancy.setText(GUIUtils.df6.format(modelAnalysis.getAccurancy()));
+        D_Recall.setText(GUIUtils.df6.format(modelAnalysis.getRecall()));
+        D_Precision.setText(GUIUtils.df6.format(modelAnalysis.getPrecision()));
+        D_Fmeasure.setText(GUIUtils.df6.format(modelAnalysis.getF_measure()));
+        D_F0_5.setText(GUIUtils.df6.format(modelAnalysis.getF0_5()));
+        D_F2.setText(GUIUtils.df6.format(modelAnalysis.getF2()));
+        D_AUC.setText(GUIUtils.df6.format(modelAnalysis.getAUC()));
+    }
+    //连接数据库
+    void connectDataBase() {
+        if(types==null || itemMap==null){
+            new Thread(new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        MysqlConnection.connect();
+                        types=MysqlConnection.getType();
+                        itemMap = MysqlConnection.getItemMap();
+                        MysqlConnection.close();
+                        Platform.runLater(()->{
+                            TreeItem<PredictInfoTableItem> root = new TreeItem<>(new PredictInfoTableItem("化验类型","","",""));
+                            C_infoTable.setRoot(root);
+                            C_infoTable.setShowRoot(false);
+                            for (Map.Entry<Integer, String> entry : types.entrySet()) {
+                                TreeItem<PredictInfoTableItem> tmp=new TreeItem<>(new PredictInfoTableItem(entry.getValue(),"","",""));
+                                typeItems.put(entry.getKey(),tmp);
+                                root.getChildren().add(tmp);
+                            }
+                        });
+                    }catch (Exception e){
+                        Platform.runLater(()->{
+                            new Alert(Alert.AlertType.ERROR, "连接数据库失败，请确认数据库配置正常").show();
+                        });
+                    }
+                    return null;
                 }
-            }
-
-            public void write(byte b[]) {
-                stringBuffer.append(b);
-                //stringBuffer.append(new String(b));
-                if (stringBuffer.indexOf("\n")!=-1) {
-                    String str = stringBuffer.toString();
-                    stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
+            }).start();
+        }
+    }
+    //不同状态不同按钮是否可用
+    private void setButton(int i){
+        switch (i) {
+            //打开训练文件
+            case TRAINFILE:
+                B_startTrainButton.setDisable(false);
+                break;
+            //打开测试文件
+            case TESTFILE:
+                B_startTestButton.setDisable(false);
+                break;
+            //打开预测文件
+            case PREDICTFILE:
+                C_startPredictButton.setDisable(false);
+                break;
+            //训练完模型或者打开训练好的模型
+            case ISTRAIN:
+                B_openTestSetFileButton.setDisable(false);
+                C_openDataFileButton.setDisable(false);
+                D_AnalysisButton.setDisable(false);
+                if(trainDataBean!=null){
+                    B_startTrainButton.setDisable(false);
                 }
-            }
-            public void write(byte b[], int off, int len) throws IOException {
-                stringBuffer.append(new String(b, off, len));
-                if (stringBuffer.indexOf("\n")!=-1) {
-                    String str = stringBuffer.toString();
-                    stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
-                }
-            }
-
-        };
-        PrintStream printStream = new PrintStream(textAreaStream);
-        System.setOut(printStream);
+                break;
+            //测试完成
+            case ISTEST:break;
+            //预测完成
+            case ISPREDICT:break;
+            //终止训练
+            case ISINTERPUTE:
+                B_startTrainButton.setDisable(false);
+                B_openTestSetFileButton.setDisable(true);
+                B_startTestButton.setDisable(true);
+                C_openDataFileButton.setDisable(true);
+                D_AnalysisButton.setDisable(false);
+                B_testSetPath.clear();
+                C_chooseIdSpinner.getEditor().clear();
+                C_showIdResult.clear();
+                C_dataFilePath.clear();
+                modelAnalysis=null;
+                if(randomForest!=null)
+                    randomForest.setTrain(false);
+                break;
+        }
     }
 
 }

@@ -1,0 +1,101 @@
+/*按钮基础样式*/
+.btn-basic {
+    /*文本对齐方式*/
+    -fx-text-alignment: center;
+    /*无边框*/
+    -fx-border-style: none;
+    /*鼠标样式*/
+    -fx-cursor: pointer;
+}
+
+/*鼠标覆盖按钮效果*/
+.btn-basic:hover {
+    /*粗体*/
+    -fx-font-weight: bold;
+    /*透明度*/
+    -fx-opacity: 0.8;
+}
+
+.menuBtn{
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.menuBtn:hover{
+    -fx-background-color: #AAAAAA;
+}
+
+#menu_exit:hover{
+    -fx-background-color: red;
+}
+
+
+/*边框圆角按钮*/
+.btn-radius-large {
+    -fx-border-radius: 50px;
+    -fx-background-radius: 50px;
+}
+
+
+/*内容盒子样式，设置一下圆角和内边距*/
+.box {
+    -fx-border-color: rgb(162, 162, 162);
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+/*输入框样式*/
+.input-group {
+    /*对齐方式*/
+    -fx-text-alignment: left;
+    /*内容显示方式*/
+    -fx-content-display: inline-block;
+    /*边框色*/
+    -fx-border-color: rgb(230, 230, 230);
+    /*提示文字颜色*/
+    -fx-prompt-text-fill: rgb(162, 162, 162);
+    /*输入文字颜色*/
+    -fx-text-fill: rgb(110, 110, 110);
+    /*边框圆角*/
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    /*鼠标形状*/
+    -fx-cursor: pointer;
+}
+
+/*复选框样式*/
+.check-box .box {
+    -fx-background-color: #fff;
+    -fx-border-color: rgb(230, 230, 230);
+    -fx-border-radius: 5;
+}
+
+/*复选框选中后标记的颜色*/
+.check-box:selected .mark {
+    -fx-background-color: #fff;
+}
+
+/*复选框选中后背景色*/
+.check-box:selected .box {
+    -fx-background-color: rgb(95, 184, 120);
+}
+
+.Mytab {
+    -fx-background-color: grey;
+}
+
+.Mytab:selected{
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: black;
+}
+.table-pane{
+    -fx-background-color: black;
+}
+

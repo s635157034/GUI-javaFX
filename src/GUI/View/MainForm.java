@@ -6,17 +6,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MainForm extends Application {
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("MainForm.fxml"));
         primaryStage.setTitle("辅助诊断工具");
-        primaryStage.setScene(new Scene(root,600,525));
+        Scene scene = new Scene(root, 600, 525);
+        scene.getStylesheets().add(getClass().getResource("MainForm.css").toExternalForm());
+        primaryStage.setScene(scene);
         StageManager.STAGE.put("MainForm", primaryStage);
-        //System.out.println(GUIUtils.getAboslutePath());
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setOnCloseRequest(event -> {
             System.exit(0);
         });

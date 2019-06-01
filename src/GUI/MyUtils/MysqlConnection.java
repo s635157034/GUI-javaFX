@@ -3,6 +3,7 @@ package GUI.MyUtils;
 import GUI.Model.EMRItem;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
@@ -14,15 +15,15 @@ public class MysqlConnection {
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost:3306/EMR?serverTimezone=GMT%2B8";
 
-    static String USER = "test";
-    static String PASS = "123456";
+    static String USER;
+    static String PASS;
 
     static Properties config;
 
     static {
         try {
             config = new Properties();
-            config.load(new BufferedReader(new FileReader(GUIUtils.getAboslutePath() + "\\config\\config.properties")));
+            config.load(new BufferedReader(new FileReader(GUIUtils.getAboslutePath() + File.separator+"config"+File.separator+"config.properties")));
             USER = config.getProperty("user");
             PASS = config.getProperty("password");
         } catch (IOException e) {
