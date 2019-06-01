@@ -6,12 +6,18 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.io.FileInputStream;
 
 public class MainForm extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
+        FileInputStream fs = new FileInputStream("icon/icon.png");
+        Image image = new Image(fs);
+        fs.close();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainForm.fxml"));
         Parent root = loader.load();
         MainFormController controller = loader.getController();
@@ -23,6 +29,7 @@ public class MainForm extends Application {
         StageManager.STAGE.put("MainForm", primaryStage);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setOnCloseRequest(event ->System.exit(0));
+        primaryStage.getIcons().add(image);
         primaryStage.show();
     }
 

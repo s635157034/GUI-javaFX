@@ -251,6 +251,10 @@ public class MainFormController implements Initializable {
                 protected Object call() throws Exception {
                     try {
                         trainDataBean = GUIUtils.getDataFromFile(file.getPath());
+                        attributeInfoLabels = new ArrayList<>();
+                        for (int i = 0; i < trainDataBean.getAttruibuteNum(); i++) {
+                            attributeInfoLabels.add(new AttributeInfoLabel(trainDataBean.getHeaders(i), trainDataBean.getAttruibute(i)));
+                        }
                         Platform.runLater(()->{
                             A_filePath.setText(file.getPath());
                             A_fileInfo_attributeNum.setText(String.valueOf(trainDataBean.getAttruibuteNum()));
@@ -265,10 +269,7 @@ public class MainFormController implements Initializable {
                             B_chooseClassId.setItems(observableList);
                             B_chooseClassId.getSelectionModel().select(observableList.size() - 1);
                             //创建所有属性的属性信息
-                            attributeInfoLabels = new ArrayList<>();
-                            for (int i = 0; i < trainDataBean.getAttruibuteNum(); i++) {
-                                attributeInfoLabels.add(new AttributeInfoLabel(trainDataBean.getHeaders(i), trainDataBean.getAttruibute(i)));
-                            }
+
                             setButton(TRAINFILE);
                         });
                     } catch (Exception e) {
