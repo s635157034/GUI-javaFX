@@ -35,7 +35,7 @@
                                           <Insets left="10.0" />
                                        </HBox.margin>
                                     </Label>
-                                    <TextField fx:id="A_filePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                    <JFXTextField fx:id="A_filePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                                     <ProgressIndicator fx:id="A_Indicator" visible="false">
                                        <HBox.margin>
                                           <Insets left="5.0" right="5.0" />
@@ -86,21 +86,21 @@
                                           </TableView>
                                           <HBox maxHeight="25.0" prefHeight="25.0" prefWidth="250.0" VBox.vgrow="ALWAYS">
                                              <children>
-                                                 <Button mnemonicParsing="false" onAction="#A_selectAllAttributes" text="全选" HBox.hgrow="ALWAYS">
+                                                 <JFXButton mnemonicParsing="false" onAction="#A_selectAllAttributes" text="全选" HBox.hgrow="ALWAYS">
                                                    <HBox.margin>
                                                       <Insets left="35.0" />
                                                    </HBox.margin>
-                                                </Button>
-                                                 <Button mnemonicParsing="false" onAction="#A_selectNoneAttributes" text="全不选" HBox.hgrow="ALWAYS">
+                                                </JFXButton>
+                                                 <JFXButton mnemonicParsing="false" onAction="#A_selectNoneAttributes" text="全不选" HBox.hgrow="ALWAYS">
                                                    <HBox.margin>
                                                       <Insets left="20.0" />
                                                    </HBox.margin>
-                                                </Button>
-                                                 <Button mnemonicParsing="false" onAction="#A_deselectAllAtributes" text="反选" HBox.hgrow="ALWAYS">
+                                                </JFXButton>
+                                                 <JFXButton mnemonicParsing="false" onAction="#A_deselectAllAtributes" text="反选" HBox.hgrow="ALWAYS">
                                                    <HBox.margin>
                                                       <Insets left="20.0" />
                                                    </HBox.margin>
-                                                </Button>
+                                                </JFXButton>
                                              </children>
                                              <VBox.margin>
                                                 <Insets bottom="20.0" top="10.0" />
@@ -244,8 +244,8 @@
                                                  <TextField fx:id="B_classiferNum" text="50" GridPane.columnIndex="1" />
                                                  <TextField fx:id="B_maxDepth" promptText="-1为不限制" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                  <TextField fx:id="B_minGini" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                 <TextField fx:id="B_inputDataScale" promptText="-1为.632自助法" text="-2" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                 <TextField fx:id="B_attributeScale" promptText="-1为logN,-2为根号N" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                 <TextField fx:id="B_inputDataScale" promptText="-1为.632自助法" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                 <TextField fx:id="B_attributeScale" promptText="-1为logN,-2为根号N" text="-2" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                                 <Label text="随机因子：" GridPane.rowIndex="5" />
                                                  <TextField fx:id="B_randomSeed" text="1" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                              </children>
@@ -300,7 +300,7 @@
                                                  <Insets bottom="10.0" top="10.0" />
                                              </VBox.margin>
                                           </HBox>
-                                           <TextField fx:id="B_testSetPath" editable="false" />
+                                           <JFXTextField fx:id="B_testSetPath" editable="false" />
                                        </children>
                                     </VBox>
                                     <VBox prefHeight="200.0" prefWidth="400.0" HBox.hgrow="ALWAYS">
@@ -540,7 +540,7 @@
                                           <Insets left="10.0" />
                                        </HBox.margin>
                                     </Label>
-                                     <TextField fx:id="C_dataFilePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                     <JFXTextField fx:id="C_dataFilePath" editable="false" prefHeight="23.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                                     <ProgressIndicator fx:id="C_Indicator" visible="false" />
                                  </children>
                                  <VBox.margin>
@@ -567,7 +567,7 @@
                                           <Font size="16.0" />
                                        </font>
                                     </Label>
-                                    <TextField fx:id="C_showIdResult" editable="false" />
+                                    <JFXTextField fx:id="C_showIdResult" editable="false" />
                                  </children>
                                  <VBox.margin>
                                     <Insets bottom="5.0" top="5.0" />

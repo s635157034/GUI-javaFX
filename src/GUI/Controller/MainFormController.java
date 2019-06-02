@@ -49,6 +49,7 @@ public class MainFormController implements Initializable {
     public static final int TRAINFILE = 1;
     public static final int TESTFILE = 2;
     public static final int PREDICTFILE = 3;
+    public static final int STARTTRAIN = 7;
     public static final int ISTRAIN = 4;
     public static final int ISTEST = 5;
     public static final int ISPREDICT = 6;
@@ -337,7 +338,7 @@ public class MainFormController implements Initializable {
     //开始训练(多线程实现，避免ui卡死）
     @FXML
     void B_startTrain(ActionEvent event) {
-        B_startTrainButton.setDisable(true);
+        setButton(STARTTRAIN);
         try {
             int treeNum = Integer.valueOf(B_classiferNum.getText());
             int maxDepth = Integer.valueOf(B_maxDepth.getText());
@@ -808,6 +809,9 @@ public class MainFormController implements Initializable {
                 if(trainDataBean!=null){
                     B_startTrainButton.setDisable(false);
                 }
+                if(testDataBean!=null){
+                    B_startTestButton.setDisable(false);
+                }
                 break;
             //测试完成
             case ISTEST:break;
@@ -827,6 +831,10 @@ public class MainFormController implements Initializable {
                 modelAnalysis=null;
                 if(randomForest!=null)
                     randomForest.setTrain(false);
+                break;
+            case STARTTRAIN:
+                B_startTrainButton.setDisable(true);
+                B_startTestButton.setDisable(true);
                 break;
         }
     }
