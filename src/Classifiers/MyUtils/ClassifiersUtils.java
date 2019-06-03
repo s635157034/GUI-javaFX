@@ -170,7 +170,7 @@ public class ClassifiersUtils {
 
     /**
      * 从0-n-1个二划分
-     *
+     * 仅支持不超过31的集合,运算时间成指数倍增长
      * @param n 离散值的个数
      * @return 返回二划分的集合
      */
@@ -182,4 +182,5 @@ public class ClassifiersUtils {
         Set<Set<Integer>> sets=ProperSubsetCombination.getProperSubset(set);
         return sets;
     }
+
 }
