@@ -2,9 +2,6 @@ package GUI.MyUtils;
 
 import GUI.Model.EMRItem;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
@@ -23,7 +20,7 @@ public class MysqlConnection {
     static {
         try {
             config = new Properties();
-            config.load(new BufferedReader(new FileReader(GUIUtils.getAboslutePath() + File.separator+"config"+File.separator+"config.properties")));
+            config.load(MysqlConnection.class.getResourceAsStream("/config.properties"));
             USER = config.getProperty("user");
             PASS = config.getProperty("password");
         } catch (IOException e) {

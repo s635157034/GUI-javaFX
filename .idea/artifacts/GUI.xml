@@ -1,0 +1,39 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="GUI">
+    <output-path>$PROJECT_DIR$/out/artifacts/GUI</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="GUI.View.MainForm" />
+        <option name="description" value="Auxiliary diagnostic system for AF" />
+        <option name="height" value="525" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="icons">
+          <JavaFxApplicationIcons>
+            <option name="windowsIcon" value="$PROJECT_DIR$/icon/win.ico" />
+          </JavaFxApplicationIcons>
+        </option>
+        <option name="nativeBundle" value="exe" />
+        <option name="title" value="Auxiliary diagnostic system for AF" />
+        <option name="vendor" value="sk" />
+        <option name="version" value="1.0" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="GUI.jar">
+        <element id="module-output" name="GUI" />
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+        </element>
+      </element>
+      <element id="library" level="project" name="fxgraphics2d-1.6" />
+      <element id="library" level="project" name="jcommon-1.0.23" />
+      <element id="library" level="project" name="jfoenix-8.0.8" />
+      <element id="library" level="project" name="jfreechart-1.5.0" />
+      <element id="library" level="project" name="jfreechart-fx" />
+      <element id="library" level="project" name="mysql-connector-java-8.0.16" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

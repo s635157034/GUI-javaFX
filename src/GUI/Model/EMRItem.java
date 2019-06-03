@@ -25,7 +25,10 @@ public class EMRItem {
         this.higher = higher;
         if(lower!=higher){
             this.recommend = GUIUtils.df2.format(lower) + "-" + GUIUtils.df2.format(higher);
-        }else {
+        }else if(lower==-1 && higher==-1){
+            this.recommend = null;
+        }
+        else {
             this.recommend = String.valueOf(lower);
         }
     }

@@ -2,7 +2,6 @@ package Classifiers.MyUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -169,34 +168,18 @@ public class ClassifiersUtils {
         return result;
     }
 
-
     /**
-     * 从1-n个二划分
+     * 从0-n-1个二划分
      *
      * @param n 离散值的个数
      * @return 返回二划分的集合
      */
     public static Set<Set<Integer>> combineSubset(int n) {
         Set<Integer> set = new HashSet<>();
-        Set<Set<Integer>> result = new HashSet<Set<Integer>>();
         for (int i = 0; i < n; i++) {
             set.add(i);
         }
-        if (n % 2 == 0) {
-            for (int i = 1; i < n / 2; i++) {
-                result.addAll(ProperSubsetCombination.getProperSubset(i, set));
-            }
-            Set<Set<Integer>> tmp = ProperSubsetCombination.getProperSubset(n / 2, set);
-            Iterator<Set<Integer>> it = tmp.iterator();
-            for (int i = 0; i < tmp.size() / 2; i++) {
-                result.add(it.next());
-            }
-        } else {
-            for (int i = 1; i <= n / 2; i++) {
-                result.addAll(ProperSubsetCombination.getProperSubset(i, set));
-            }
-        }
-        return result;
+        Set<Set<Integer>> sets=ProperSubsetCombination.getProperSubset(set);
+        return sets;
     }
-
 }

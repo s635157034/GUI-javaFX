@@ -10,14 +10,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.FileInputStream;
-
 public class MainForm extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FileInputStream fs = new FileInputStream("icon/icon.png");
-        Image image = new Image(fs);
-        fs.close();
+        Image image = new Image(getClass().getResourceAsStream("/icon.png"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainForm.fxml"));
         Parent root = loader.load();
         MainFormController controller = loader.getController();
