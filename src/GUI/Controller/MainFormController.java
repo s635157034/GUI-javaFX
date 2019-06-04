@@ -371,6 +371,7 @@ public class MainFormController implements Initializable {
 
             int[] exception = ClassifiersUtils.getIntArrary(arrayList.toArray(new Integer[arrayList.size()]));
             randomForest = new RandomForest(treeNum, maxDepth, minGini, trainDataBean.getInput(), inputClass, exception, classId, inputDataScale, attributeScale, randomSeed);
+            randomForest.setHeaders(trainDataBean.getHeaders());
             setButton(STARTTRAIN);
             //javaFX的多线程方式
             randomForestBuild();
@@ -418,7 +419,7 @@ public class MainFormController implements Initializable {
     @FXML
     void B_startTest() {
         double[] results=randomForest.verifyRate(testDataBean.getInput());
-        modelAnalysis = new ModelAnalysis(testDataBean.getAttruibute(B_chooseClassId.getSelectionModel().getSelectedIndex()), results);
+        modelAnalysis = new ModelAnalysis(testDataBean.getAttruibute(randomForest.getInputClassId()), results);
         setD_ModelInfo();
         GraphicsContext context = D_ROC_Canvas.getGraphicsContext2D();
         context.clearRect(0,0,200,200);
@@ -531,7 +532,7 @@ public class MainFormController implements Initializable {
     @FXML
     void D_startAnalysis(ActionEvent event) {
         //分析模型
-        ChartViewer tmp =new ChartViewer(JFCUtils.creatChart(trainDataBean, randomForest));
+        ChartViewer tmp =new ChartViewer(JFCUtils.creatChart(randomForest));
         Stage stage = new Stage();
         stage.setTitle("模型评估");
         stage.setScene(new Scene(tmp,800,600));

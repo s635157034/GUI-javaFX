@@ -28,6 +28,7 @@ public class RandomForest implements Serializable {
     private long randomSeed = 1;
     private List<CartTree> cartTrees = new ArrayList<>();
     private boolean train = false;
+    private String[] headers=null;
 
     public RandomForest(double[][] input, int[] inputClass, int[] exception, int inputClassId) {
         this.input = input;
@@ -168,6 +169,9 @@ public class RandomForest implements Serializable {
 
     public TreeSet<AttributeWeight> getTopAttribute(){
         String[] strings = new String[inputClass.length];
+        for (int i = 0; i < strings.length; i++) {
+            strings[i]=String.valueOf(i);
+        }
         return getTopAttribute(strings);
     }
 
@@ -248,6 +252,14 @@ public class RandomForest implements Serializable {
 
     public void setInput(double[][] input) {
         this.input = input;
+    }
+
+    public String[] getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(String[] headers) {
+        this.headers = headers;
     }
 
     public int[] getInputClass() {

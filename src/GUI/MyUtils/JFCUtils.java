@@ -2,7 +2,6 @@ package GUI.MyUtils;
 
 import Classifiers.RandomForest.AttributeWeight;
 import Classifiers.RandomForest.RandomForest;
-import GUI.Model.DataBean;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.image.Image;
 import org.jfree.chart.ChartFactory;
@@ -50,9 +49,14 @@ public class JFCUtils {
         return image;
     }
 
-    public static JFreeChart creatChart(DataBean dataBean, RandomForest rf){
+    public static JFreeChart creatChart(RandomForest rf){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        TreeSet<AttributeWeight> treeSet = rf.getTopAttribute(dataBean.getHeaders());
+        TreeSet<AttributeWeight> treeSet;
+        if(rf.getHeaders()==null){
+            treeSet = rf.getTopAttribute();
+        }else {
+            treeSet = rf.getTopAttribute(rf.getHeaders());
+        }
         for (int i = 0; i < 25; i++) {
             AttributeWeight tmp = treeSet.pollFirst();
             dataset.addValue(tmp.getWeight(), "综合评分", tmp.getName());
