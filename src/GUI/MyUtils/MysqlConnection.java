@@ -33,18 +33,18 @@ public class MysqlConnection {
     static Statement stmt = null;
 
     public static void connect() {
-        if(conn==null) {
+        if (conn == null) {
             try {
                 Class.forName(JDBC_DRIVER);
                 conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                stmt=conn.createStatement();
+                stmt = conn.createStatement();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static ResultSet excuteQuery(String sql){
+    public static ResultSet excuteQuery(String sql) {
         try {
             return stmt.executeQuery(sql);
         } catch (SQLException e) {
@@ -53,8 +53,8 @@ public class MysqlConnection {
         return null;
     }
 
-    public static void close(){
-        if(conn!=null){
+    public static void close() {
+        if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
@@ -63,7 +63,7 @@ public class MysqlConnection {
         }
     }
 
-    public static Map<String, EMRItem> getItemMap(){
+    public static Map<String, EMRItem> getItemMap() {
         Map<String, EMRItem> map = new HashMap<>(150);
         String sql = "select item,abbreviation,lower,higher,test_type_id from test_item";
         ResultSet rs = excuteQuery(sql);
@@ -79,14 +79,14 @@ public class MysqlConnection {
         return map;
     }
 
-    public static Map<Integer,String> getType(){
+    public static Map<Integer, String> getType() {
         //ArrayList<String> strs=new ArrayList<>();
         Map<Integer, String> map = new HashMap<>();
         String sql = "select id,name from test_type";
         ResultSet rs = excuteQuery(sql);
         try {
             while (rs.next()) {
-                map.put(rs.getInt("id"),rs.getString("name"));
+                map.put(rs.getInt("id"), rs.getString("name"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

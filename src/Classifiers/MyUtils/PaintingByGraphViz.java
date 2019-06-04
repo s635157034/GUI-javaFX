@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PaintingByGraphViz {
     public static int threadNum = 10;
-    public static boolean flag=false;
+    public static boolean flag = false;
     public static AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public static void createDotGraph(String dotFormat, String fileName, String dotName) {
@@ -111,7 +111,7 @@ public class PaintingByGraphViz {
                             bar.setProgress(atomicInteger.incrementAndGet() / (double) total);
                         }
                     } catch (Exception e) {
-                        System.out.println(Thread.currentThread().getName()+":终止成功");
+                        System.out.println(Thread.currentThread().getName() + ":终止成功");
                     }
                 }, "graph-" + i).start();
             }

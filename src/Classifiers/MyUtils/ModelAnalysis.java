@@ -17,8 +17,8 @@ public class ModelAnalysis {
     private double F_measure;
     private double F2;
     private double F0_5;
-    private double thresold=0.5;
-    private boolean isRate=true;
+    private double thresold = 0.5;
+    private boolean isRate = true;
     private double[][] ROCData;
     private double AUC;
 
@@ -43,11 +43,13 @@ public class ModelAnalysis {
         this.thresold = thresold;
         analysis();
     }
+
     public ModelAnalysis(double[] realClass, int[] preidictClass) {
         this.predictClass = preidictClass;
         this.realClass = new int[realClass.length];
         for (int i = 0; i < realClass.length; i++) {
-            this.realClass[i] = (int) realClass[i];;
+            this.realClass[i] = (int) realClass[i];
+            ;
         }
         isRate = false;
         analysis();
@@ -59,27 +61,30 @@ public class ModelAnalysis {
         this.predictClass = new int[predictClassRate.length];
         this.realClass = new int[realClass.length];
         for (int i = 0; i < realClass.length; i++) {
-            this.realClass[i] = (int) realClass[i];;
+            this.realClass[i] = (int) realClass[i];
+            ;
         }
         analysis();
         analysisROC();
     }
-    public ModelAnalysis(double[] realClass, double[] predictClassRate,double thresold) {
+
+    public ModelAnalysis(double[] realClass, double[] predictClassRate, double thresold) {
         this.predictClassRate = predictClassRate;
         this.predictClass = new int[predictClassRate.length];
         this.thresold = thresold;
         this.realClass = new int[realClass.length];
         for (int i = 0; i < realClass.length; i++) {
-            this.realClass[i] = (int) realClass[i];;
+            this.realClass[i] = (int) realClass[i];
+            ;
         }
         this.thresold = thresold;
         analysis();
         analysisROC();
     }
 
-    private void analysis(){
-        int TP=0, TN=0, FP=0, FN = 0;
-        int[] tmp=getMatrix();
+    private void analysis() {
+        int TP = 0, TN = 0, FP = 0, FN = 0;
+        int[] tmp = getMatrix();
         TP = tmp[0];
         FP = tmp[1];
         FN = tmp[2];
@@ -88,44 +93,44 @@ public class ModelAnalysis {
         Accurancy = (TP + TN) / (double) (TP + TN + FP + FN);
         if (TP + FN == 0) {
             Recall = 0;
-        }else {
-            Recall = TP /(double)(TP + FN);
+        } else {
+            Recall = TP / (double) (TP + FN);
         }
         if (TP + FP == 0) {
             Precision = 0;
-        }else {
+        } else {
             Precision = TP / (double) (TP + FP);
         }
         if (Precision + Recall == 0) {
             F_measure = 0;
-            F2=0;
+            F2 = 0;
             F0_5 = 0;
-        }else {
+        } else {
             F_measure = (2 * Precision * Recall) / (Precision + Recall);
             F2 = (5 * Precision * Recall) / (4 * Precision + Recall);
             F0_5 = (1.25 * Precision * Recall) / (0.25 * Precision + Recall);
         }
     }
 
-    public int[] getMatrix(){
-        int TP=0, TN=0, FP=0, FN = 0;
+    public int[] getMatrix() {
+        int TP = 0, TN = 0, FP = 0, FN = 0;
         if (isRate) {
             for (int i = 0; i < predictClassRate.length; i++) {
-                predictClass[i] = getIntWithThresold(predictClassRate[i],thresold);
+                predictClass[i] = getIntWithThresold(predictClassRate[i], thresold);
             }
         }
         for (int i = 0; i < realClass.length; i++) {
             //positive
-            if(realClass[i]==1){
-                if (predictClass[i]==1){
+            if (realClass[i] == 1) {
+                if (predictClass[i] == 1) {
                     TP++;
-                }else {
+                } else {
                     FN++;
                 }
-            }else {//negative
-                if (predictClass[i]==1){
+            } else {//negative
+                if (predictClass[i] == 1) {
                     FP++;
-                }else {
+                } else {
                     TN++;
                 }
             }
@@ -135,7 +140,7 @@ public class ModelAnalysis {
 
     public double findBestThresold(double gap) {
         double maxAccurancy = Accurancy;
-        double maxThresold=thresold;
+        double maxThresold = thresold;
         double i = 1;
         while (i >= 0) {
             thresold = i;
@@ -154,44 +159,44 @@ public class ModelAnalysis {
         analysis();
     }
 
-    private void analysisROC(){
-        int count=0;
+    private void analysisROC() {
+        int count = 0;
         Set<Double> predict = new TreeSet<>(Comparator.reverseOrder());
-        for (double tmp:predictClassRate) {
+        for (double tmp : predictClassRate) {
             predict.add(tmp);
         }
         ROCData = new double[predict.size()][2];
-        for (double tmp:predict) {
-            int TP=0, TN=0, FP=0, FN = 0;
+        for (double tmp : predict) {
+            int TP = 0, TN = 0, FP = 0, FN = 0;
             double TPR = 0, FPR = 0;
             int[] predicts = new int[realClass.length];
             for (int i = 0; i < predictClassRate.length; i++) {
-                predicts[i] = getIntWithThresold(predictClassRate[i],tmp);
+                predicts[i] = getIntWithThresold(predictClassRate[i], tmp);
             }
             for (int i = 0; i < predictClassRate.length; i++) {
                 //positive
-                if(realClass[i]==1){
-                    if (predicts[i]==1){
+                if (realClass[i] == 1) {
+                    if (predicts[i] == 1) {
                         TP++;
-                    }else {
+                    } else {
                         FN++;
                     }
-                }else {//negative
-                    if (predicts[i]==1){
+                } else {//negative
+                    if (predicts[i] == 1) {
                         FP++;
-                    }else {
+                    } else {
                         TN++;
                     }
                 }
             }
-            if(TP+FN==0){
+            if (TP + FN == 0) {
                 TPR = 0;
-            }else {
+            } else {
                 TPR = (TP) / (double) (TP + FN);
             }
-            if(FP+TN==0) {
+            if (FP + TN == 0) {
                 FPR = 0;
-            }else {
+            } else {
                 FPR = (FP) / (double) (FP + TN);
             }
             ROCData[count][0] = FPR;
@@ -201,7 +206,7 @@ public class ModelAnalysis {
         calculateAUC();
     }
 
-    private void calculateAUC(){
+    private void calculateAUC() {
         double tmp = 0;
         tmp += (ROCData[0][0] * ROCData[0][1]) / 2;
         for (int i = 1; i < ROCData.length; i++) {
@@ -211,12 +216,17 @@ public class ModelAnalysis {
         AUC = tmp;
     }
 
-    private int getIntWithThresold(double a,double thresold){
-        if(a>=thresold){
+    private int getIntWithThresold(double a, double thresold) {
+        if (a >= thresold) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
+    }
+
+    public void changeAnalysis(double thresold) {
+        this.thresold = thresold;
+        analysis();
     }
 
     public XYChart.Series<String, Double> getSeries() {
@@ -228,7 +238,7 @@ public class ModelAnalysis {
         return series;
     }
 
-    public double[][] getROCLine(){
+    public double[][] getROCLine() {
         double[][] tmp = ClassifiersUtils.flip(ROCData);
         for (int i = 0; i < tmp[0].length; i++) {
             tmp[0][i] *= 200;
@@ -342,8 +352,4 @@ public class ModelAnalysis {
     }
 
 
-    public void changeAnalysis(double thresold) {
-        this.thresold = thresold;
-        analysis();
-    }
 }
