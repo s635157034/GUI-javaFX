@@ -338,7 +338,6 @@ public class MainFormController implements Initializable {
     //开始训练(多线程实现，避免ui卡死）
     @FXML
     void B_startTrain(ActionEvent event) {
-        setButton(STARTTRAIN);
         try {
             int treeNum = Integer.valueOf(B_classiferNum.getText());
             int maxDepth = Integer.valueOf(B_maxDepth.getText());
@@ -350,9 +349,14 @@ public class MainFormController implements Initializable {
             ObservableList<AttributeTableViewItem> observableList = A_fileInfoTableView.getItems();
             int[] inputClass = new int[observableList.size()];
             ArrayList<Integer> arrayList = new ArrayList<>();
+            int count=0;
             for (AttributeTableViewItem tmp : observableList) {
                 if (tmp.getCheck() == false) {
                     arrayList.add(tmp.getId());
+                }else {
+                    if(tmp.getId()!=classId){
+                        count++;
+                    }
                 }
                 if (tmp.getDiscrete()) {
                     inputClass[tmp.getId()] = (int) attributeInfoLabels.get(tmp.getId()).getDistinct();
@@ -361,14 +365,19 @@ public class MainFormController implements Initializable {
             if (arrayList.contains(classId) == false) {
                 arrayList.add(classId);
             }
+            if(count==0){
+                throw new Exception();
+            }
+
             int[] exception = ClassifiersUtils.getIntArrary(arrayList.toArray(new Integer[arrayList.size()]));
             randomForest = new RandomForest(treeNum, maxDepth, minGini, trainDataBean.getInput(), inputClass, exception, classId, inputDataScale, attributeScale, randomSeed);
+            setButton(STARTTRAIN);
             //javaFX的多线程方式
             randomForestBuild();
         } catch (NumberFormatException e) {
             System.out.println("所有参数仅能设置为数字");
         } catch (Exception e){
-            System.out.println("错误");
+            System.out.println("请至少选中一项非Class的属性");
         }
     }
     //停止训练线程
@@ -716,7 +725,10 @@ public class MainFormController implements Initializable {
                         Thread.sleep(500);
                     }
                     System.out.println("总运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
-                    Platform.runLater(()->D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1)));
+                    Platform.runLater(()->{
+                        D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1));
+                        showClassifer();
+                    });
                 }catch (InterruptedException e){
                     System.out.println("终止成功");
                 }
