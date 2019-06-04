@@ -134,6 +134,7 @@ public class MainFormController implements Initializable {
     @FXML private ProgressIndicator A_Indicator;
     @FXML private ProgressIndicator C_Indicator;
     @FXML private ScrollPane C_scrollPane;
+
     //初始化需要的操作
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -143,18 +144,18 @@ public class MainFormController implements Initializable {
         A_fileInfoTableView_col3.setCellValueFactory(new PropertyValueFactory("name"));
         A_fileInfoTableView_col4.setCellValueFactory(new PropertyValueFactory("isDiscrete"));
 
-        C_infoTable_idCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getId()));
-        C_infoTable_nameCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
-        C_infoTable_recommendCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getRecommend()));
-        C_infoTable_actualCol.setCellValueFactory( (param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getActual()));
+        C_infoTable_idCol.setCellValueFactory((param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getId()));
+        C_infoTable_nameCol.setCellValueFactory((param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+        C_infoTable_recommendCol.setCellValueFactory((param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getRecommend()));
+        C_infoTable_actualCol.setCellValueFactory((param) -> new ReadOnlyStringWrapper(param.getValue().getValue().getActual()));
 
         //spinner监听输入的值是否符合要求
-        D_classiferIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->showClassifer());
-        D_classiferIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
+        D_classiferIdSpinner.valueProperty().addListener((observable, oldValue, newValue) -> showClassifer());
+        D_classiferIdSpinner.editorProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 int value = Integer.valueOf(newValue.getText());
                 if (value >= randomForest.getTreeNum() || value < 0) {
-                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (classifyDataBean.getInput().length-1) + "之间的数字").showAndWait();
+                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (classifyDataBean.getInput().length - 1) + "之间的数字").showAndWait();
                     D_classiferIdSpinner.getEditor().setText(oldValue.getText());
                 }
             } catch (NumberFormatException e) {
@@ -163,12 +164,12 @@ public class MainFormController implements Initializable {
             }
         });
 
-        C_chooseIdSpinner.valueProperty().addListener((observable,oldValue,newValue)->C_getInfo());
-        C_chooseIdSpinner.editorProperty().addListener((observable,oldValue,newValue)->{
+        C_chooseIdSpinner.valueProperty().addListener((observable, oldValue, newValue) -> C_getInfo());
+        C_chooseIdSpinner.editorProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 int value = Integer.valueOf(newValue.getText());
                 if (value >= randomForest.getTreeNum() || value < 0) {
-                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (randomForest.getTreeNum()-1) + "之间的数字").showAndWait();
+                    new Alert(Alert.AlertType.ERROR, "仅能输入0-" + (randomForest.getTreeNum() - 1) + "之间的数字").showAndWait();
                     C_chooseIdSpinner.getEditor().setText(oldValue.getText());
                 }
             } catch (NumberFormatException e) {
@@ -180,13 +181,13 @@ public class MainFormController implements Initializable {
         //滑动条的监听，改变值时实时更新其他信息
         D_thresoldSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             D_thresoldText.setText(GUIUtils.df2.format(newValue.doubleValue()));
-            if(modelAnalysis!=null){
+            if (modelAnalysis != null) {
                 modelAnalysis.changeAnalysis(GUIUtils.df2.format(newValue.doubleValue()));
                 setD_ModelInfo();
             }
         });
 
-        new DragImageListener(D_imageView,C_scrollPane);
+        new DragImageListener(D_imageView, C_scrollPane);
 
         //程序启动尝试自动连接数据库，多线程避免界面阻塞
         new Thread(new Task() {
@@ -194,8 +195,8 @@ public class MainFormController implements Initializable {
             protected Object call() throws Exception {
                 try {
                     connectDataBase();
-                }catch (Exception e){
-                    Platform.runLater(()->{
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
                         new Alert(Alert.AlertType.ERROR, "连接数据库失败，请手动连接").show();
                     });
                 }
@@ -206,31 +207,33 @@ public class MainFormController implements Initializable {
         //将系统输出重定位到textarea中，用stringbuffer缓冲
         OutputStream textAreaStream = new OutputStream() {
             StringBuffer stringBuffer = new StringBuffer();
+
             public void write(int b) {
                 //利用stringbuffer缓存，检测到回车以后调用javafx线程更新输入框
                 stringBuffer.append((char) b);
-                if (stringBuffer.indexOf("\n")!=-1) {
+                if (stringBuffer.indexOf("\n") != -1) {
                     String str = stringBuffer.toString();
                     stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
+                    Platform.runLater(() -> B_TextArea.appendText(str));
                 }
             }
 
             public void write(byte b[]) {
                 stringBuffer.append(b);
                 //stringBuffer.append(new String(b));
-                if (stringBuffer.indexOf("\n")!=-1) {
+                if (stringBuffer.indexOf("\n") != -1) {
                     String str = stringBuffer.toString();
                     stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
+                    Platform.runLater(() -> B_TextArea.appendText(str));
                 }
             }
+
             public void write(byte b[], int off, int len) throws IOException {
                 stringBuffer.append(new String(b, off, len));
-                if (stringBuffer.indexOf("\n")!=-1) {
+                if (stringBuffer.indexOf("\n") != -1) {
                     String str = stringBuffer.toString();
                     stringBuffer.setLength(0);//清空字符串
-                    Platform.runLater(()->B_TextArea.appendText(str));
+                    Platform.runLater(() -> B_TextArea.appendText(str));
                 }
             }
 
@@ -247,7 +250,7 @@ public class MainFormController implements Initializable {
         stage = (Stage) rootVBox.getScene().getWindow();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("打开文件");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv","*.csv"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv", "*.csv"));
         fileChooser.setInitialDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
@@ -261,7 +264,7 @@ public class MainFormController implements Initializable {
                         for (int i = 0; i < trainDataBean.getAttruibuteNum(); i++) {
                             attributeInfoLabels.add(new AttributeInfoLabel(trainDataBean.getHeaders(i), trainDataBean.getAttruibute(i)));
                         }
-                        Platform.runLater(()->{
+                        Platform.runLater(() -> {
                             A_filePath.setText(file.getPath());
                             A_fileInfo_attributeNum.setText(String.valueOf(trainDataBean.getAttruibuteNum()));
                             A_fileInfo_instanceNum.setText(String.valueOf(trainDataBean.getInstanceNum()));
@@ -287,6 +290,7 @@ public class MainFormController implements Initializable {
             //读取文件
         }
     }
+
     //选中所有属性
     @FXML
     void A_selectAllAttributes(ActionEvent event) {
@@ -295,6 +299,7 @@ public class MainFormController implements Initializable {
             tmp.setCheck(true);
         }
     }
+
     //不选所有属性
     @FXML
     void A_selectNoneAttributes(ActionEvent event) {
@@ -303,6 +308,7 @@ public class MainFormController implements Initializable {
             tmp.setCheck(false);
         }
     }
+
     //反选所有属性
     @FXML
     void A_deselectAllAtributes(ActionEvent event) {
@@ -315,6 +321,7 @@ public class MainFormController implements Initializable {
             }
         }
     }
+
     //显示所选属性的信息
     @FXML
     void A_showSelectAttributeInfo(MouseEvent event) {
@@ -349,12 +356,12 @@ public class MainFormController implements Initializable {
             ObservableList<AttributeTableViewItem> observableList = A_fileInfoTableView.getItems();
             int[] inputClass = new int[observableList.size()];
             ArrayList<Integer> arrayList = new ArrayList<>();
-            int count=0;
+            int count = 0;
             for (AttributeTableViewItem tmp : observableList) {
                 if (tmp.getCheck() == false) {
                     arrayList.add(tmp.getId());
-                }else {
-                    if(tmp.getId()!=classId){
+                } else {
+                    if (tmp.getId() != classId) {
                         count++;
                     }
                 }
@@ -365,7 +372,7 @@ public class MainFormController implements Initializable {
             if (arrayList.contains(classId) == false) {
                 arrayList.add(classId);
             }
-            if(count==0){
+            if (count == 0) {
                 throw new Exception();
             }
 
@@ -377,10 +384,11 @@ public class MainFormController implements Initializable {
             randomForestBuild();
         } catch (NumberFormatException e) {
             System.out.println("所有参数仅能设置为数字");
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("请至少选中一项非Class的属性");
         }
     }
+
     //停止训练线程
     @FXML
     void B_stopTrain() {
@@ -388,13 +396,14 @@ public class MainFormController implements Initializable {
         Thread[] threads = new Thread[group.activeCount()];
         group.enumerate(threads);
         PaintingByGraphViz.flag = true;
-        for(Thread tmp:threads){
-            if(tmp.getName().equals("RandomForest")){
+        for (Thread tmp : threads) {
+            if (tmp.getName().equals("RandomForest")) {
                 tmp.interrupt();
                 setButton(ISINTERPUTE);
             }
         }
     }
+
     //打开测试文件
     @FXML
     void B_openTestSetFile(ActionEvent event) {
@@ -415,15 +424,16 @@ public class MainFormController implements Initializable {
             }
         }
     }
+
     //开始测试
     @FXML
     void B_startTest() {
-        double[] results=randomForest.verifyRate(testDataBean.getInput());
+        double[] results = randomForest.verifyRate(testDataBean.getInput());
         modelAnalysis = new ModelAnalysis(testDataBean.getAttruibute(randomForest.getInputClassId()), results);
         setD_ModelInfo();
         GraphicsContext context = D_ROC_Canvas.getGraphicsContext2D();
-        context.clearRect(0,0,200,200);
-        double[][] tmp=modelAnalysis.getROCLine();
+        context.clearRect(0, 0, 200, 200);
+        double[][] tmp = modelAnalysis.getROCLine();
         int[] Matrix = modelAnalysis.getMatrix();
         //打印混淆矩阵
         System.out.println("\t\t房颤\t\t正常");
@@ -431,20 +441,22 @@ public class MainFormController implements Initializable {
         System.out.println("正常\t\t" + Matrix[2] + "\t\t" + Matrix[3]);
         //绘制ROC曲线
         context.strokePolyline(tmp[0], tmp[1], tmp[0].length);
-        context.strokePolyline(new double[]{0,tmp[0][0]}, new double[]{200,tmp[1][0]}, 2);
+        context.strokePolyline(new double[]{0, tmp[0][0]}, new double[]{200, tmp[1][0]}, 2);
         context.restore();
         //设置默认阈值0.5
         D_thresoldSlider.setValue(modelAnalysis.getThresold());
         setButton(ISTEST);
     }
+
     //清空textarea
     @FXML
     void B_clearTextArea() {
         B_TextArea.clear();
     }
+
     //显示帮助
     @FXML
-    void B_showHelp(){
+    void B_showHelp() {
         B_TextArea.clear();
         B_TextArea.setText(GUIUtils.getPromptText());
     }
@@ -470,6 +482,7 @@ public class MainFormController implements Initializable {
             }
         }
     }
+
     //开始预测
     @FXML
     void C_startPredict() {
@@ -482,44 +495,49 @@ public class MainFormController implements Initializable {
                 try {
                     GUIUtils.writePredictToCSV(C_dataFilePath.getText(), classifyDataBean.getInputClass());
                     C_Indicator.setVisible(false);
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e);
                 }
                 return null;
             }
         }).start();
-        C_chooseIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,classifyDataBean.getInput().length-1));
+        C_chooseIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, classifyDataBean.getInput().length - 1));
         setButton(ISPREDICT);
     }
+
     //单独显示数据
     @FXML
-    void C_getInfo(){
+    void C_getInfo() {
         int rowNum = C_chooseIdSpinner.getValue();
         double[] value = classifyDataBean.getInput(rowNum);//元组值
         String[] id = classifyDataBean.getHeaders();//缩写
 
-        int predictClass=classifyDataBean.getInputClass()[rowNum];
+        int predictClass = classifyDataBean.getInputClass()[rowNum];
 
-        switch (predictClass){
-            case 0:C_showIdResult.setText("正常");break;
-            case 1:C_showIdResult.setText("可能患有房颤");break;
+        switch (predictClass) {
+            case 0:
+                C_showIdResult.setText("正常");
+                break;
+            case 1:
+                C_showIdResult.setText("可能患有房颤");
+                break;
         }
 
-        for(TreeItem<PredictInfoTableItem> tmp:typeItems.values()){
+        for (TreeItem<PredictInfoTableItem> tmp : typeItems.values()) {
             tmp.getChildren().clear();
         }
 
         for (int i = 0; i < value.length; i++) {
             PredictInfoTableItem item = new PredictInfoTableItem(id[i], null, null, GUIUtils.df2.format(value[i]));
-            EMRItem tmp=itemMap.get(item.getId());
-            if(tmp!=null){
+            EMRItem tmp = itemMap.get(item.getId());
+            if (tmp != null) {
                 item.setName(tmp.getName());
                 item.setRecommend(tmp.getRecommend());
-                item.setActual(item.getActual()+tmp.compare(value[i]));
+                item.setActual(item.getActual() + tmp.compare(value[i]));
                 item.setParent(typeItems.get(tmp.getId()));
                 TreeItem<PredictInfoTableItem> child = new TreeItem<>(item);
                 item.getParent().getChildren().add(child);
-            }else {
+            } else {
                 TreeItem<PredictInfoTableItem> child = new TreeItem<>(item);
                 typeItems.get(0).getChildren().add(child);
             }
@@ -532,33 +550,35 @@ public class MainFormController implements Initializable {
     @FXML
     void D_startAnalysis(ActionEvent event) {
         //分析模型
-        ChartViewer tmp =new ChartViewer(JFCUtils.creatChart(randomForest));
+        ChartViewer tmp = new ChartViewer(JFCUtils.creatChart(randomForest));
         Stage stage = new Stage();
         stage.setTitle("模型评估");
-        stage.setScene(new Scene(tmp,800,600));
+        stage.setScene(new Scene(tmp, 800, 600));
         stage.show();
     }
+
     //文本框输入阈值
     @FXML
     void D_thresoldEnter(KeyEvent event) {
-        if (event.getCode()== KeyCode.ENTER) {
-            String str=D_thresoldText.getText();
+        if (event.getCode() == KeyCode.ENTER) {
+            String str = D_thresoldText.getText();
             try {
                 double tmp = Double.valueOf(str);
-                if(tmp>1 ||tmp <0){
+                if (tmp > 1 || tmp < 0) {
                     D_thresoldSlider.setValue(0.5);
                     new Alert(Alert.AlertType.ERROR, "仅能输入0-1的小数").showAndWait();
-                }else {
+                } else {
                     str = GUIUtils.df2.format(tmp);
                     D_thresoldSlider.setValue(Double.valueOf(str));
                 }
-            }catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 D_thresoldSlider.setValue(0.5);
                 new Alert(Alert.AlertType.ERROR, "仅能输入数字").showAndWait();
             }
 
         }
     }
+
     //slider使用鼠标滚轮移动
     @FXML
     void D_sliderScroll(ScrollEvent event) {
@@ -569,6 +589,7 @@ public class MainFormController implements Initializable {
             D_thresoldSlider.decrement();
         }
     }
+
     //查找最优准确率
     @FXML
     void D_findMaxAccurancy(ActionEvent event) {
@@ -577,12 +598,13 @@ public class MainFormController implements Initializable {
             D_thresoldSlider.setValue(modelAnalysis.getThresold());
         }
     }
+
     //图片滚轮缩放
     @FXML
     void D_imageZoom(ScrollEvent event) {
         double deltaY = event.getDeltaY();
         if (deltaY > 0) {// 向上滚动,放大图片
-            double height = D_imageView.getFitHeight()*1.05;
+            double height = D_imageView.getFitHeight() * 1.05;
             D_imageView.setFitHeight(height);
         } else {// 向下滚动,缩小图片
             double height = D_imageView.getFitHeight() / 1.05;
@@ -593,22 +615,24 @@ public class MainFormController implements Initializable {
 
     //退出
     @FXML
-    void M_exit(ActionEvent event){
+    void M_exit(ActionEvent event) {
         System.exit(0);
     }
+
     //最大化
     @FXML
-    void M_max(ActionEvent event){
+    void M_max(ActionEvent event) {
         stage = (Stage) rootVBox.getScene().getWindow();
-        if(stage.isMaximized()){
+        if (stage.isMaximized()) {
             stage.setMaximized(false);
-        }else {
+        } else {
             stage.setMaximized(true);
         }
     }
+
     //最小化
     @FXML
-    void M_min(ActionEvent event){
+    void M_min(ActionEvent event) {
         stage = (Stage) rootVBox.getScene().getWindow();
         stage.setIconified(true);
     }
@@ -632,11 +656,12 @@ public class MainFormController implements Initializable {
             //如果模型对应则可以使用可视化分析和预测
             if (randomForest.getCartTrees().size() == randomForest.getTreeNum()) {
                 setButton(ISTRAIN);
-            }else{
+            } else {
                 new Alert(Alert.AlertType.WARNING, "模型无效，需要重新训练").showAndWait();
             }
         }
     }
+
     //保存训练模型文本（未实现）
     @FXML
     void M_saveClassifierAsText(ActionEvent event) {
@@ -650,10 +675,11 @@ public class MainFormController implements Initializable {
             if (randomForest != null) {
                 GUIUtils.writeClassiferAsText(file.getPath(), randomForest);
             } else {
-                new Alert(Alert.AlertType.WARNING,"请训练后再进行保存").showAndWait();
+                new Alert(Alert.AlertType.WARNING, "请训练后再进行保存").showAndWait();
             }
         }
     }
+
     //保存训练模型
     @FXML
     void M_saveClassifierObject(ActionEvent event) {
@@ -667,37 +693,40 @@ public class MainFormController implements Initializable {
                 GUIUtils.writeClassiferObject(file.getPath(), randomForest);
             }
         } else {
-            new Alert(Alert.AlertType.WARNING,"请训练后再进行保存").showAndWait();
+            new Alert(Alert.AlertType.WARNING, "请训练后再进行保存").showAndWait();
         }
     }
 
     @FXML
-    void A_clickButton(ActionEvent event){
+    void A_clickButton(ActionEvent event) {
         TabPane.getSelectionModel().select(A_Tab);
         setTabStyle();
         A_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
 
     }
+
     @FXML
-    void B_clickButton(ActionEvent event){
+    void B_clickButton(ActionEvent event) {
         TabPane.getSelectionModel().select(B_Tab);
         setTabStyle();
         B_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
     }
+
     @FXML
-    void C_clickButton(ActionEvent event){
+    void C_clickButton(ActionEvent event) {
         TabPane.getSelectionModel().select(C_Tab);
         setTabStyle();
         C_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
     }
+
     @FXML
-    void D_clickButton(ActionEvent event){
+    void D_clickButton(ActionEvent event) {
         TabPane.getSelectionModel().select(D_Tab);
         setTabStyle();
         D_button.setStyle("-fx-background-color: rgb(244,244,244);-fx-text-fill: black;");
     }
 
-    void setTabStyle(){
+    void setTabStyle() {
         A_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
         B_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
         C_button.setStyle("-fx-background-color: black;-fx-text-fill: white;");
@@ -709,28 +738,28 @@ public class MainFormController implements Initializable {
     public void randomForestBuild() {
         randomForestThread = new Thread(new Task() {
             @Override
-            protected Object call(){
+            protected Object call() {
                 try {
                     System.out.println("开始训练");
                     long startTime = System.currentTimeMillis();
                     randomForest.build(B_progressBar);
                     System.out.println("随机森林算法运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
                     System.out.println("开始生产决策树图像");
-                    Platform.runLater(()->setButton(ISTRAIN));
+                    Platform.runLater(() -> setButton(ISTRAIN));
                     B_progressBar.setProgress(0);
-                    PaintingByGraphViz.getTreePicture(randomForest.printRandomForest(),B_progressBar,randomForest.getTreeNum());
-                    while (PaintingByGraphViz.atomicInteger.get()!=randomForest.getTreeNum()){
-                        if(Thread.currentThread().isInterrupted()){
+                    PaintingByGraphViz.getTreePicture(randomForest.printRandomForest(), B_progressBar, randomForest.getTreeNum());
+                    while (PaintingByGraphViz.atomicInteger.get() != randomForest.getTreeNum()) {
+                        if (Thread.currentThread().isInterrupted()) {
                             throw new InterruptedException();
                         }
                         Thread.sleep(500);
                     }
                     System.out.println("总运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
-                    Platform.runLater(()->{
+                    Platform.runLater(() -> {
                         D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1));
                         showClassifer();
                     });
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     System.out.println("终止成功");
                 }
                 return null;
@@ -738,8 +767,9 @@ public class MainFormController implements Initializable {
         }, "RandomForest");
         randomForestThread.start();
     }
+
     //显示决策树图片
-    void showClassifer(){
+    void showClassifer() {
         int id = D_classiferIdSpinner.getValue();
         try {
             FileInputStream fs = new FileInputStream("image/classifer-" + id + ".jpg");
@@ -750,8 +780,9 @@ public class MainFormController implements Initializable {
             e.printStackTrace();
         }
     }
+
     //修改模型评估的各项数据
-    private void setD_ModelInfo(){
+    private void setD_ModelInfo() {
         D_Accurancy.setText(GUIUtils.df6.format(modelAnalysis.getAccurancy()));
         D_Recall.setText(GUIUtils.df6.format(modelAnalysis.getRecall()));
         D_Precision.setText(GUIUtils.df6.format(modelAnalysis.getPrecision()));
@@ -760,29 +791,30 @@ public class MainFormController implements Initializable {
         D_F2.setText(GUIUtils.df6.format(modelAnalysis.getF2()));
         D_AUC.setText(GUIUtils.df6.format(modelAnalysis.getAUC()));
     }
+
     //连接数据库
     void connectDataBase() {
-        if(types==null || itemMap==null){
+        if (types == null || itemMap == null) {
             new Thread(new Task() {
                 @Override
                 protected Object call() throws Exception {
                     try {
                         MysqlConnection.connect();
-                        types=MysqlConnection.getType();
+                        types = MysqlConnection.getType();
                         itemMap = MysqlConnection.getItemMap();
                         MysqlConnection.close();
-                        Platform.runLater(()->{
-                            TreeItem<PredictInfoTableItem> root = new TreeItem<>(new PredictInfoTableItem("化验类型","","",""));
+                        Platform.runLater(() -> {
+                            TreeItem<PredictInfoTableItem> root = new TreeItem<>(new PredictInfoTableItem("化验类型", "", "", ""));
                             C_infoTable.setRoot(root);
                             C_infoTable.setShowRoot(false);
                             for (Map.Entry<Integer, String> entry : types.entrySet()) {
-                                TreeItem<PredictInfoTableItem> tmp=new TreeItem<>(new PredictInfoTableItem(entry.getValue(),"","",""));
-                                typeItems.put(entry.getKey(),tmp);
+                                TreeItem<PredictInfoTableItem> tmp = new TreeItem<>(new PredictInfoTableItem(entry.getValue(), "", "", ""));
+                                typeItems.put(entry.getKey(), tmp);
                                 root.getChildren().add(tmp);
                             }
                         });
-                    }catch (Exception e){
-                        Platform.runLater(()->{
+                    } catch (Exception e) {
+                        Platform.runLater(() -> {
                             new Alert(Alert.AlertType.ERROR, "连接数据库失败，请确认数据库配置正常").show();
                         });
                     }
@@ -791,14 +823,15 @@ public class MainFormController implements Initializable {
             }).start();
         }
     }
+
     //标题栏拖动
-    public void setDragListener(Stage stage){
+    public void setDragListener(Stage stage) {
         new DragListener(stage).enableDrag(MenuHBox);
     }
 
 
     //不同状态不同按钮是否可用
-    private void setButton(int i){
+    private void setButton(int i) {
         switch (i) {
             //打开训练文件
             case TRAINFILE:
@@ -817,17 +850,19 @@ public class MainFormController implements Initializable {
                 B_openTestSetFileButton.setDisable(false);
                 C_openDataFileButton.setDisable(false);
                 D_AnalysisButton.setDisable(false);
-                if(trainDataBean!=null){
+                if (trainDataBean != null) {
                     B_startTrainButton.setDisable(false);
                 }
-                if(testDataBean!=null){
+                if (testDataBean != null) {
                     B_startTestButton.setDisable(false);
                 }
                 break;
             //测试完成
-            case ISTEST:break;
+            case ISTEST:
+                break;
             //预测完成
-            case ISPREDICT:break;
+            case ISPREDICT:
+                break;
             //终止训练
             case ISINTERPUTE:
                 B_startTrainButton.setDisable(false);
@@ -839,8 +874,8 @@ public class MainFormController implements Initializable {
                 C_chooseIdSpinner.getEditor().clear();
                 C_showIdResult.clear();
                 C_dataFilePath.clear();
-                modelAnalysis=null;
-                if(randomForest!=null)
+                modelAnalysis = null;
+                if (randomForest != null)
                     randomForest.setTrain(false);
                 break;
             case STARTTRAIN:
