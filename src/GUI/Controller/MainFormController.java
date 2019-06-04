@@ -706,6 +706,7 @@ public class MainFormController implements Initializable {
                     randomForest.build(B_progressBar);
                     System.out.println("随机森林算法运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
                     System.out.println("开始生产决策树图像");
+                    Platform.runLater(()->setButton(ISTRAIN));
                     B_progressBar.setProgress(0);
                     PaintingByGraphViz.getTreePicture(randomForest.printRandomForest(),B_progressBar,randomForest.getTreeNum());
                     while (PaintingByGraphViz.atomicInteger.get()!=randomForest.getTreeNum()){
@@ -715,10 +716,7 @@ public class MainFormController implements Initializable {
                         Thread.sleep(500);
                     }
                     System.out.println("总运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
-                    Platform.runLater(()->{
-                        D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1));
-                        setButton(ISTRAIN);
-                    });
+                    Platform.runLater(()->D_classiferIdSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, randomForest.getTreeNum() - 1)));
                 }catch (InterruptedException e){
                     System.out.println("终止成功");
                 }

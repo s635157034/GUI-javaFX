@@ -241,7 +241,7 @@
                                                 <Label text="最小基尼系数：" GridPane.rowIndex="2" />
                                                 <Label text="训练数据比例：" GridPane.rowIndex="3" />
                                                  <Label text="属性个数：" GridPane.rowIndex="4" />
-                                                 <TextField fx:id="B_classiferNum" text="50" GridPane.columnIndex="1" />
+                                                 <TextField fx:id="B_classiferNum" text="100" GridPane.columnIndex="1" />
                                                  <TextField fx:id="B_maxDepth" promptText="-1为不限制" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                  <TextField fx:id="B_minGini" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                  <TextField fx:id="B_inputDataScale" promptText="-1为.632自助法" text="-1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
