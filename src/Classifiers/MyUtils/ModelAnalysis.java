@@ -83,7 +83,7 @@ public class ModelAnalysis {
         TP = tmp[0];
         FP = tmp[1];
         FN = tmp[2];
-        TN = tmp[0];
+        TN = tmp[3];
 
         Accurancy = (TP + TN) / (double) (TP + TN + FP + FN);
         if (TP + FN == 0) {
