@@ -36,7 +36,7 @@ public class Gini {
                     Arrays.sort(sorted);
                     //计算所有可能的阈值
                     for (int j = 0; j < length - 1; j++) {
-                        if(sorted[j]==sorted[j+1])
+                        if (sorted[j] == sorted[j + 1])
                             continue;
                         double tmp = ((sorted[j] + sorted[j + 1]) / 2);
                         double tmpGini = calculateGini(input[i], input[classId], tmp, start, end);

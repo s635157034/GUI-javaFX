@@ -30,12 +30,13 @@ public abstract class CartTreeNode implements Comparable<CartTreeNode>, Serializ
         this.depth = depth;
         this.gini = gini;
     }
+
     //输出为node格式
     public String printNode() {
         String newline = "\\n";
         DecimalFormat decimalFormat = new DecimalFormat("#.######");
         StringBuffer label = new StringBuffer();
-        if(attriId!=-1){
+        if (attriId != -1) {
             label.append("AttributeID:" + attriId + newline);
         }
         if (threshold != null) {
@@ -152,8 +153,8 @@ class CartTreeNodeLess extends CartTreeNode {
     public CartTreeNodeLess(int attriId, double threshold, int start, int end, int depth, double gini) {
         super(attriId, "<=" + threshold, start, end, depth, gini);
         DecimalFormat decimalFormat = new DecimalFormat("#.######");
-        this.setThreshold("<="+decimalFormat.format(threshold));
-        thresholds=threshold;
+        this.setThreshold("<=" + decimalFormat.format(threshold));
+        thresholds = threshold;
     }
 
     @Override
@@ -172,8 +173,8 @@ class CartTreeNodeMore extends CartTreeNode {
     public CartTreeNodeMore(int attriId, double threshold, int start, int end, int depth, double gini) {
         super(attriId, ">" + threshold, start, end, depth, gini);
         DecimalFormat decimalFormat = new DecimalFormat("#.######");
-        this.setThreshold(">"+decimalFormat.format(threshold));
-        thresholds=threshold;
+        this.setThreshold(">" + decimalFormat.format(threshold));
+        thresholds = threshold;
     }
 
     @Override

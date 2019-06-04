@@ -11,7 +11,7 @@ import java.util.Set;
  * Created by sun on 19-4-17.
  */
 public class Bootstrap {
-    public static Random static_random=new Random(System.nanoTime());
+    public static Random static_random = new Random(System.nanoTime());
 
     public static DataSet bootStrap(double[][] data) {
         DataSet dataSet = chooseData(data, bagging(data.length));
@@ -20,7 +20,7 @@ public class Bootstrap {
     }
 
     public static DataSet bootStrap(double[][] data, int dataSize) {
-        DataSet dataSet = chooseData(data, bagging(data.length,dataSize));
+        DataSet dataSet = chooseData(data, bagging(data.length, dataSize));
         dataSet.trainData = ClassifiersUtils.flip(dataSet.trainData);
         return dataSet;
     }
@@ -82,20 +82,19 @@ public class Bootstrap {
 
     public static DataSet chooseData(double[][] data, int[] nums) {
         double[][] trainData = new double[nums.length][];
-        double[][] oobData = new double[data.length-nums.length][];
-        int a = 0,b=0;
+        double[][] oobData = new double[data.length - nums.length][];
+        int a = 0, b = 0;
         for (int i = 0; i < data.length; i++) {
-            if(ClassifiersUtils.isContain(i,nums)){
+            if (ClassifiersUtils.isContain(i, nums)) {
                 trainData[a] = data[i];
                 a++;
-            }else {
+            } else {
                 oobData[b] = data[i];
                 b++;
             }
         }
-        return new DataSet(trainData,oobData);
+        return new DataSet(trainData, oobData);
     }
-
 
 
 }

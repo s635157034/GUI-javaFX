@@ -28,7 +28,7 @@ public class RandomForest implements Serializable {
     private long randomSeed = 1;
     private List<CartTree> cartTrees = new ArrayList<>();
     private boolean train = false;
-    private String[] headers=null;
+    private String[] headers = null;
 
     public RandomForest(double[][] input, int[] inputClass, int[] exception, int inputClassId) {
         this.input = input;
@@ -83,8 +83,8 @@ public class RandomForest implements Serializable {
         train = false;
         Random random = new Random(randomSeed);
         Bootstrap.static_random = random;
-        for (int i = 0; i < treeNum ; i++) {
-            if(Thread.currentThread().isInterrupted()){
+        for (int i = 0; i < treeNum; i++) {
+            if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
             buildForest();
@@ -100,7 +100,7 @@ public class RandomForest implements Serializable {
                 return (int) Math.ceil(Math.sqrt(inputClass.length - exception.length));
             case LOGN:
                 //属性值为1的时候也能=1，如果使用ceil则等于0
-                return (int) Math.floor(Math.log(inputClass.length - exception.length)/Math.log(2) + 1);
+                return (int) Math.floor(Math.log(inputClass.length - exception.length) / Math.log(2) + 1);
             default:
                 return attributeScale;
         }
@@ -113,6 +113,7 @@ public class RandomForest implements Serializable {
         }
         return ClassifiersUtils.getMostResult(result);
     }
+
     public double verifyRate(double[] data) {
         int[] result = new int[treeNum];
         for (int i = 0; i < treeNum; i++) {
@@ -132,6 +133,7 @@ public class RandomForest implements Serializable {
         }
         return result;
     }
+
     public double[] verifyRate(double[][] data) {
         int[] tmpResult = new int[treeNum];
         double[] result = new double[data.length];
@@ -144,53 +146,54 @@ public class RandomForest implements Serializable {
         return result;
     }
 
-    public String[] printRandomForest(){
+    public String[] printRandomForest() {
         String[] strs = new String[treeNum];
         for (int i = 0; i < treeNum; i++) {
             strs[i] = cartTrees.get(i).printCartTree();
         }
         return strs;
     }
-    public String printRandomForest(int i){
+
+    public String printRandomForest(int i) {
         String str = cartTrees.get(i).printCartTree();
         return str;
     }
 
-    public TreeSet<AttributeWeight> getTopAttribute(String[] headers){
+    public TreeSet<AttributeWeight> getTopAttribute(String[] headers) {
         double[] weights = calculateAttributeWeight();
         TreeSet<AttributeWeight> attributeWeights = new TreeSet<>();
         for (int i = 0; i < weights.length; i++) {
-            if(i==inputClassId)
+            if (i == inputClassId)
                 continue;
-            attributeWeights.add(new AttributeWeight(headers[i],i, weights[i]));
+            attributeWeights.add(new AttributeWeight(headers[i], i, weights[i]));
         }
         return attributeWeights;
     }
 
-    public TreeSet<AttributeWeight> getTopAttribute(){
+    public TreeSet<AttributeWeight> getTopAttribute() {
         String[] strings = new String[inputClass.length];
         for (int i = 0; i < strings.length; i++) {
-            strings[i]=String.valueOf(i);
+            strings[i] = String.valueOf(i);
         }
         return getTopAttribute(strings);
     }
 
-    public double[] calculateAttributeWeight(){
+    public double[] calculateAttributeWeight() {
         double[] attriWeight = new double[inputClass.length];
-        for (CartTree cartTree:cartTrees) {
+        for (CartTree cartTree : cartTrees) {
             for (CartTreeNode cartTreeNode : cartTree.getCartTreeNodes()) {
-                if(!cartTreeNode.isLeaf()){
-                    CartTreeNode left,right;
+                if (!cartTreeNode.isLeaf()) {
+                    CartTreeNode left, right;
                     left = cartTree.getCartTreeNodes().get(cartTreeNode.getLeftChild());
                     right = cartTree.getCartTreeNodes().get(cartTreeNode.getRightChild());
                     int attributeId = left.getAttriId();
                     double size = getSize(cartTreeNode);//用double避免下面计算需要转成浮点型
-                    double decreaseGini = cartTreeNode.getGini() - (left.getGini()*(getSize(left)/size) + right.getGini()*(getSize(right)/size));
+                    double decreaseGini = cartTreeNode.getGini() - (left.getGini() * (getSize(left) / size) + right.getGini() * (getSize(right) / size));
                     attriWeight[attributeId] += decreaseGini;
                 }
             }
         }
-        double sum=0;
+        double sum = 0;
         for (int i = 0; i < attriWeight.length; i++) {
             sum += attriWeight[i];
         }
@@ -200,10 +203,9 @@ public class RandomForest implements Serializable {
         return attriWeight;
     }
 
-    private int getSize(CartTreeNode cartTreeNode){
+    private int getSize(CartTreeNode cartTreeNode) {
         return cartTreeNode.getEnd() - cartTreeNode.getStart();
     }
-
 
 
     public long getRandomSeed() {
@@ -310,7 +312,7 @@ public class RandomForest implements Serializable {
         this.train = train;
     }
 
-    private void buildForest(){
+    private void buildForest() {
         DataSet data;
         if (inputScale <= 0) {
             data = Bootstrap.bootStrap(input);

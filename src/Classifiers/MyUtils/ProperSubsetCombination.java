@@ -21,29 +21,30 @@ public class ProperSubsetCombination {
      * @param itemSet 输入的集合
      * @return 集合的二划分的其中一个
      */
-    public static Set<Set<Integer>> getProperSubset(Set<Integer> itemSet){
+    public static Set<Set<Integer>> getProperSubset(Set<Integer> itemSet) {
         array = itemSet.toArray(new Integer[itemSet.size()]);
         Set<Set<Integer>> set = new HashSet<>();
-        int len = array.length-1;
+        int len = array.length - 1;
         //n项数据，只需要返回一半（真子集）二划分所以从是2的n-2次方,由于只返回一半因此最高位永远是0，忽略不计顾用len-1
-        for (int i = 1; i < 1<<len; i++) {
-            set.add(intToSet(len,i));
+        for (int i = 1; i < 1 << len; i++) {
+            set.add(intToSet(len, i));
         }
         return set;
     }
-/*   public static Set<Integer> intToSet(int n,int num){
-        Set<Integer> set = new HashSet<>();
-        for(int i=0;i<n;i++){
-            if((num>>i)<<31!=0){
-                set.add(array[i]);
+
+    /*   public static Set<Integer> intToSet(int n,int num){
+            Set<Integer> set = new HashSet<>();
+            for(int i=0;i<n;i++){
+                if((num>>i)<<31!=0){
+                    set.add(array[i]);
+                }
             }
-        }
-        return set;
-    }*/
-    public static Set<Integer> intToSet(int n,int num){
+            return set;
+        }*/
+    public static Set<Integer> intToSet(int n, int num) {
         Set<Integer> set = new HashSet<>();
-        for(int i=0;i<n;i++){
-            if(num%2!=0){
+        for (int i = 0; i < n; i++) {
+            if (num % 2 != 0) {
                 set.add(array[i]);
             }
             num /= 2;

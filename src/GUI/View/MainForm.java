@@ -24,7 +24,7 @@ public class MainForm extends Application {
         primaryStage.setScene(scene);
         StageManager.STAGE.put("MainForm", primaryStage);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
-        primaryStage.setOnCloseRequest(event ->System.exit(0));
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.getIcons().add(image);
         primaryStage.show();
     }

@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AttributeInfoLabel {
-    public static int DIVIDENUM=20;
+    public static int DIVIDENUM = 20;
     private String name;
     private long total;
     private long distinct;//值的可能个数
@@ -145,7 +145,7 @@ public class AttributeInfoLabel {
 
             double[] divide = new double[num];
             for (int i = 0; i < num; i++) {
-                divide[i] = (max - min) / num * i+min;
+                divide[i] = (max - min) / num * i + min;
             }
            /* double left = average - min;
             double right = max - average;
@@ -160,7 +160,7 @@ public class AttributeInfoLabel {
                 divideMap.put(divide[i], new AtomicLong(0));
             }
             for (Map.Entry<Double, AtomicLong> tmp : map.entrySet()) {
-                boolean flag=false;
+                boolean flag = false;
                 for (int i = 0; i < num - 1; i++) {
                     //是否在前num-1组
                     if (tmp.getKey() >= divide[i] && tmp.getKey() < divide[i + 1]) {
@@ -169,11 +169,11 @@ public class AttributeInfoLabel {
                         break;
                     }
                 }
-                if(flag==false){
+                if (flag == false) {
                     divideMap.get(divide[num - 1]).addAndGet(tmp.getValue().longValue());
                 }
             }
-        }else {
+        } else {
             divideMap = map;
         }
 

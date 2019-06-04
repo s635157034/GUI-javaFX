@@ -26,8 +26,8 @@ import java.util.TreeSet;
 public class JFCUtils {
 
     public static SwingNode getSwingNode(JFreeChart chart) {
-        SwingNode node=new SwingNode();
-        ChartPanel c=new ChartPanel(chart);
+        SwingNode node = new SwingNode();
+        ChartPanel c = new ChartPanel(chart);
         node.setContent(c);
         return node;
     }
@@ -37,31 +37,31 @@ public class JFCUtils {
         return chartViewer;
     }
 
-    public static Image getImage(JFreeChart chart){
+    public static Image getImage(JFreeChart chart) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            ChartUtils.writeChartAsJPEG(out,chart,800,600);
+            ChartUtils.writeChartAsJPEG(out, chart, 800, 600);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ByteArrayInputStream in=new ByteArrayInputStream(out.toByteArray());
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Image image = new Image(in);
         return image;
     }
 
-    public static JFreeChart creatChart(RandomForest rf){
+    public static JFreeChart creatChart(RandomForest rf) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         TreeSet<AttributeWeight> treeSet;
-        if(rf.getHeaders()==null){
+        if (rf.getHeaders() == null) {
             treeSet = rf.getTopAttribute();
-        }else {
+        } else {
             treeSet = rf.getTopAttribute(rf.getHeaders());
         }
         for (int i = 0; i < 25; i++) {
             AttributeWeight tmp = treeSet.pollFirst();
             dataset.addValue(tmp.getWeight(), "综合评分", tmp.getName());
         }
-        JFreeChart chart = ChartFactory.createBarChart("参数分析","属性",null,dataset);
+        JFreeChart chart = ChartFactory.createBarChart("参数分析", "属性", null, dataset);
         chart.setBackgroundPaint(Color.white);
         CategoryPlot plot = chart.getCategoryPlot();
         CategoryAxis domainAxis = plot.getDomainAxis();

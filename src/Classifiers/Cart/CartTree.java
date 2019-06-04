@@ -53,6 +53,9 @@ public class CartTree implements Serializable {
         this.dataClassId = dataClassId;
     }
 
+    public static int getContinuous() {
+        return continuous;
+    }
 
     /**
      * @param start     起始位置
@@ -64,7 +67,7 @@ public class CartTree implements Serializable {
         CartTreeNode root = new CartTreeNodeRoot(start, end, Gini.calculateTotalGini(data[dataClassId], start, end));
         cartTreeNodes.add(root);
         int[] child = buildCartTree(start, end, exception, 1);
-        if(child[0]==-1 ||child[1]==-1){
+        if (child[0] == -1 || child[1] == -1) {
             root.setLeaf(true);
         }
         root.setLeftChild(child[0]);
@@ -171,13 +174,12 @@ public class CartTree implements Serializable {
         }
     }
 
-
     public int verify(double[] data) {
         //根节点，至多遍历到2个子树，超过则某属性为-1（空）
         int i = 0;
         CartTreeNode node;
         while (true) {
-           node=cartTreeNodes.get(i);
+            node = cartTreeNodes.get(i);
             //是否符合该节点的阈值
             if (node.isContain(data)) {
                 //如果是叶子节点直接返回结果
@@ -186,7 +188,7 @@ public class CartTree implements Serializable {
                 }
                 //是否在左子树上
                 CartTreeNode tmp = cartTreeNodes.get(node.getLeftChild());
-                boolean flag=tmp.isContain(data);
+                boolean flag = tmp.isContain(data);
                 if (flag) {
                     i = node.getLeftChild();
                 } else {
@@ -207,8 +209,7 @@ public class CartTree implements Serializable {
         return results;
     }
 
-
-    public void pruning(){
+    public void pruning() {
         for (CartTreeNode node : cartTreeNodes) {
 
         }
@@ -284,8 +285,7 @@ public class CartTree implements Serializable {
             return -1;
     }
 
-
-    public String printCartTree(){
+    public String printCartTree() {
         StringBuffer nodesInfo = new StringBuffer();
         StringBuffer nodesConnection = new StringBuffer();
         nodesInfo.append("node [shape = box];");
@@ -293,16 +293,11 @@ public class CartTree implements Serializable {
             CartTreeNode tmp = cartTreeNodes.get(i);
             nodesInfo.append("CART" + i + " [ label =\"" + tmp.printNode() + "\"]\n");
             if (tmp.isLeaf() == false) {
-                nodesConnection.append("CART" + i + "-> CART" + tmp.getLeftChild()+";\n");
-                nodesConnection.append("CART" + i + "-> CART" + tmp.getRightChild()+";\n");
+                nodesConnection.append("CART" + i + "-> CART" + tmp.getLeftChild() + ";\n");
+                nodesConnection.append("CART" + i + "-> CART" + tmp.getRightChild() + ";\n");
             }
         }
         return nodesInfo.append("\n\n").append(nodesConnection).toString();
-    }
-
-
-    public static int getContinuous() {
-        return continuous;
     }
 
     public double getMinGini() {

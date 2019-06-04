@@ -11,11 +11,12 @@ public class GUIUtils {
     public static DecimalFormat df2 = new DecimalFormat("#.##");
     public static DecimalFormat df6 = new DecimalFormat("#.######");
     public static File file = new File("");
-    public static String getAboslutePath(){
+
+    public static String getAboslutePath() {
         return file.getAbsolutePath();
     }
 
-    public static String getPromptText(){
+    public static String getPromptText() {
         return "分类器数量：随机森林训练次数，产生指定数量的分类器。\n" +
                 "\n" +
                 "最大深度：定义每个分类器的最大深度，-1为不限定。\n" +
@@ -67,21 +68,21 @@ public class GUIUtils {
     }
 
 
-    public static boolean writePredictToCSV(String source,int[] predicts) throws Exception{
+    public static boolean writePredictToCSV(String source, int[] predicts) throws Exception {
         return writePredictToCSV(source, predicts, true);
     }
 
-    public static boolean writePredictToCSV(String source,int[] predicts,boolean isHeader) throws Exception {
-        BufferedReader br=new BufferedReader(new FileReader(source));
-        PrintWriter pw=new PrintWriter(source.substring(0,source.lastIndexOf(".csv"))+"-预测后.csv");
+    public static boolean writePredictToCSV(String source, int[] predicts, boolean isHeader) throws Exception {
+        BufferedReader br = new BufferedReader(new FileReader(source));
+        PrintWriter pw = new PrintWriter(source.substring(0, source.lastIndexOf(".csv")) + "-预测后.csv");
         String line;
         if (isHeader) {
             pw.println(br.readLine() + ",Predict");
         }
-        int i=0;
+        int i = 0;
         while ((line = br.readLine()) != null) {
-           pw.println(line+","+predicts[i]);
-           i++;
+            pw.println(line + "," + predicts[i]);
+            i++;
         }
         br.close();
         pw.flush();

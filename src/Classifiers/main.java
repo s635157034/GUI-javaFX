@@ -22,7 +22,7 @@ public class main {
         double[][] input = getDataFromCsv(inputPath);
         System.out.println("程序运行时间：" + (System.currentTimeMillis() - startTime) + "ms");
         int col = input[0].length;
-        int[] inputClass=new int[col];
+        int[] inputClass = new int[col];
         //inputClass = ClassifiersUtils.getInputClass(input);
         RandomForest randomForest = new RandomForest(input, inputClass, new int[]{col - 1}, col - 1);
         randomForest.setTreeNum(100);
@@ -30,10 +30,10 @@ public class main {
         randomForest.setAttributeScale(-1);
         randomForest.build();
         String testPath = "C:\\Users\\Mrsun\\Desktop\\test.csv";
-        DataBean dataBean=GUIUtils.getDataFromFile(testPath);
+        DataBean dataBean = GUIUtils.getDataFromFile(testPath);
         double[][] test = dataBean.getInput();
         int[] result = randomForest.verify(test);
-        ModelAnalysis modelAnalysis = new ModelAnalysis(dataBean.getAttruibute(col-1),randomForest.verifyRate(dataBean.getInput()));
+        ModelAnalysis modelAnalysis = new ModelAnalysis(dataBean.getAttruibute(col - 1), randomForest.verifyRate(dataBean.getInput()));
         double accuracy = ClassifiersUtils.calculateAccuracy(test, col - 1, result);
         System.out.println(accuracy);
         System.out.println(modelAnalysis.getAccurancy());
@@ -48,24 +48,24 @@ public class main {
     }
 
     public static void mainb(String[] args) {
-        double[][] input=new double[5][];
-        input[0]= new double[]{0, 1, 2, 3, 0};
-        input[1]= new double[]{0, 1, 2, 3, 0};
-        input[2]= new double[]{0, 1, 2, 3, 0};
-        input[3]= new double[]{0, 1, 2, 3, 1};
-        input[4]= new double[]{0, 1, 2, 3, 1};
-        int[] inputClass=new int[]{0,2,0,0,2};
-        input=ClassifiersUtils.flip(input);
+        double[][] input = new double[5][];
+        input[0] = new double[]{0, 1, 2, 3, 0};
+        input[1] = new double[]{0, 1, 2, 3, 0};
+        input[2] = new double[]{0, 1, 2, 3, 0};
+        input[3] = new double[]{0, 1, 2, 3, 1};
+        input[4] = new double[]{0, 1, 2, 3, 1};
+        int[] inputClass = new int[]{0, 2, 0, 0, 2};
+        input = ClassifiersUtils.flip(input);
         ClassifiersUtils.printArray(input);
 //        System.out.println(Gini.calculateTotalGini(input[4],0,4));
 
 
-        CartTree cartTree=new CartTree();
+        CartTree cartTree = new CartTree();
         cartTree.setData(input);
         cartTree.setDataClass(inputClass);
         cartTree.setDataClassId(4);
-        int[] exception=new int[]{4};
-        cartTree.buildCartTree(0,4,exception);
+        int[] exception = new int[]{4};
+        cartTree.buildCartTree(0, 4, exception);
         Collections.sort(cartTree.getCartTreeNodes());
         System.out.println(cartTree.toString());
 

@@ -9,7 +9,7 @@ import javafx.scene.control.CheckBox;
 public class AttributeTableViewItem {
     private IntegerProperty num;
     private StringProperty name;
-    private CheckBox checkBox=new CheckBox();
+    private CheckBox checkBox = new CheckBox();
     private CheckBox isDiscrete = new CheckBox();
 
     public AttributeTableViewItem(int num, String name) {
@@ -49,11 +49,11 @@ public class AttributeTableViewItem {
         return checkBox;
     }
 
-    public boolean getCheck(){
+    public boolean getCheck() {
         return checkBox.isSelected();
     }
 
-    public void setCheck(boolean flag){
+    public void setCheck(boolean flag) {
         checkBox.setSelected(flag);
     }
 

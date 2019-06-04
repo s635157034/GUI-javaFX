@@ -17,18 +17,17 @@ public class EMRItem {
         this.id = id;
     }
 
-    public EMRItem(String name, String abbr, double lower,double higher, int id) {
+    public EMRItem(String name, String abbr, double lower, double higher, int id) {
         this.name = name;
         this.abbr = abbr;
         this.id = id;
-        this.lower=lower;
+        this.lower = lower;
         this.higher = higher;
-        if(lower!=higher){
+        if (lower != higher) {
             this.recommend = GUIUtils.df2.format(lower) + "-" + GUIUtils.df2.format(higher);
-        }else if(lower==-1 && higher==-1){
+        } else if (lower == -1 && higher == -1) {
             this.recommend = null;
-        }
-        else {
+        } else {
             this.recommend = String.valueOf(lower);
         }
     }
@@ -82,12 +81,12 @@ public class EMRItem {
         this.higher = higher;
     }
 
-    public String compare(double a){
-        if(a>=lower && a<=higher){
+    public String compare(double a) {
+        if (a >= lower && a <= higher) {
             return "";
-        }else if(a>higher){
+        } else if (a > higher) {
             return "  ↑";
-        }else {
+        } else {
             return "  ↓";
         }
     }

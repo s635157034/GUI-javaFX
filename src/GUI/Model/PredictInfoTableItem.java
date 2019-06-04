@@ -12,18 +12,18 @@ public class PredictInfoTableItem {
     private TreeItem<PredictInfoTableItem> parent;
 
     public PredictInfoTableItem(String id, String name, String recommend, String actual) {
-        this.id=new SimpleStringProperty(id);
-        this.name=new SimpleStringProperty(name);
-        this.recommend=new SimpleStringProperty(recommend);
-        this.actual=new SimpleStringProperty(actual);
+        this.id = new SimpleStringProperty(id);
+        this.name = new SimpleStringProperty(name);
+        this.recommend = new SimpleStringProperty(recommend);
+        this.actual = new SimpleStringProperty(actual);
     }
 
 
-    public PredictInfoTableItem(String id, String name, String recommend, String actual,TreeItem<PredictInfoTableItem> parent) {
-        this.id=new SimpleStringProperty(id);
-        this.name=new SimpleStringProperty(name);
-        this.recommend=new SimpleStringProperty(recommend);
-        this.actual=new SimpleStringProperty(actual);
+    public PredictInfoTableItem(String id, String name, String recommend, String actual, TreeItem<PredictInfoTableItem> parent) {
+        this.id = new SimpleStringProperty(id);
+        this.name = new SimpleStringProperty(name);
+        this.recommend = new SimpleStringProperty(recommend);
+        this.actual = new SimpleStringProperty(actual);
         this.parent = parent;
     }
 

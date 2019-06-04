@@ -30,10 +30,11 @@ public class DataBean {
         return tmp;
     }
 
-    public int getAttruibuteNum(){
+    public int getAttruibuteNum() {
         return headers.length;
     }
-    public int getInstanceNum(){
+
+    public int getInstanceNum() {
         return input.length;
     }
 
